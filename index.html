@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WonderMath | Interactive Math Conjectures & AI Exploration for K-12</title>
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/simulations.css">
+
+  <!-- KaTeX for crisp mathematical rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <a href="#" class="brand-container" id="nav-brand">
+      <div class="brand-logo">∑</div>
+      <div>
+        <span class="brand-name">WonderMath</span>
+        <span class="brand-tag">K-12 Math Conjectures & AI Lab</span>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <button class="nav-link active" data-view="gallery" data-i18n="nav_conjectures">Conjectures</button>
+      <button class="nav-link ai-link" data-view="ai-lab" data-i18n="nav_ai_lab">🤖 AI Co-Mathematician</button>
+      <button class="nav-link" data-view="timeline" data-i18n="nav_timeline">2026 AI Breakthroughs</button>
+      <button class="nav-link" data-view="lean-view" data-i18n="nav_lean">Lean 4 Explorer</button>
+      
+      <!-- Language Selector -->
+      <div class="lang-selector-wrapper">
+        <span class="lang-icon">🌐</span>
+        <select id="lang-select" class="lang-dropdown" aria-label="Select Language">
+          <option value="en">🇺🇸 English</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="it">🇮🇹 Italiano</option>
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="ko">🇰🇷 한국어</option>
+          <option value="zh-Hans">🇨🇳 简体中文</option>
+          <option value="zh-Hant">🇹🇼 繁體中文</option>
+        </select>
+      </div>
+    </nav>
+  </header>
+
+  <!-- K-12 Grade Level Adaptive Switcher Bar -->
+  <aside class="grade-band-bar">
+    <span class="grade-label" data-i18n="learning_level">Learning Level:</span>
+    <div class="grade-selector">
+      <button class="grade-btn active" data-grade="explorers" data-i18n="grade_explorers">
+        <span>🎒</span> Explorers (Gr 3–5)
+      </button>
+      <button class="grade-btn" data-grade="investigators" data-i18n="grade_investigators">
+        <span>🔬</span> Investigators (Gr 6–8)
+      </button>
+      <button class="grade-btn" data-grade="pioneers" data-i18n="grade_pioneers">
+        <span>🚀</span> Pioneers (Gr 9–12)
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+
+    <!-- VIEW 1: CONJECTURES GALLERY -->
+    <section id="view-gallery" class="view-container active">
+      <div class="hero-banner">
+        <div class="hero-pill">
+          <span data-i18n="hero_pill_mysteries">✨ Unsolved Mysteries & AI Frontiers</span>
+        </div>
+        <h1 class="hero-title">
+          <span data-i18n="hero_title_gallery_1">Step Inside The World's Greatest </span>
+          <span class="highlight-text" data-i18n="hero_title_gallery_2">Math Riddles</span>
+        </h1>
+        <p class="hero-subtitle" data-i18n="hero_sub_gallery">
+          Can you trap an immortal hailstone? Can you color any map with four crayons? Explore hands-on simulations, uncover the drama of proof attempts, and team up with AI to push the boundaries of mathematics.
+        </p>
+      </div>
+
+      <!-- Conjectures Grid -->
+      <div class="conjectures-grid" id="conjectures-grid-container">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- VIEW 2: CONJECTURE DETAIL & HANDS-ON LAB -->
+    <section id="view-detail" class="view-container">
+      <div class="back-nav-bar">
+        <button class="btn-back" id="btn-back-to-gallery" data-i18n="btn_back">← Back to All Conjectures</button>
+      </div>
+
+      <div id="conjecture-detail-content">
+        <!-- Injected dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- VIEW 3: AI CO-MATHEMATICIAN WORKBENCH -->
+    <section id="view-ai-lab" class="view-container">
+      <div class="hero-banner">
+        <div class="hero-pill">
+          <span data-i18n="hero_pill_ai">🤖 AI Exploration Workbench</span>
+        </div>
+        <h1 class="hero-title">
+          <span data-i18n="hero_title_ai_1">Partner with an </span>
+          <span class="highlight-text" data-i18n="hero_title_ai_2">AI Mathematician</span>
+        </h1>
+        <p class="hero-subtitle" data-i18n="hero_sub_ai">
+          From formulating derivative 'What-If' conjectures to running automated heuristic counterexample searches, explore how modern research AI and automated theorem provers discover new mathematics.
+        </p>
+      </div>
+
+      <!-- AI Hypothesis Explorer -->
+      <div id="ai-explorer-container">
+        <!-- Injected by explorer.js -->
+      </div>
+
+      <!-- Counterexample Hunter -->
+      <div id="counterexample-hunter-container">
+        <!-- Injected by counterexample_sim.js -->
+      </div>
+    </section>
+
+    <!-- VIEW 4: MODERN AI BREAKTHROUGHS TIMELINE (2021-2026) -->
+    <section id="view-timeline" class="view-container">
+      <div class="hero-banner">
+        <div class="hero-pill">
+          <span data-i18n="hero_pill_timeline">⚡ 2021–2026 Milestone Tracker</span>
+        </div>
+        <h1 class="hero-title">
+          <span data-i18n="hero_title_timeline_1">How AI is </span>
+          <span class="highlight-text" data-i18n="hero_title_timeline_2">Revolutionizing Mathematics</span>
+        </h1>
+        <p class="hero-subtitle" data-i18n="hero_sub_timeline">
+          From DeepMind's AlphaProof to the landmark 2026 discoveries: the machine-checked formalization of Fermat's Last Theorem, the Erdős Unit Distance disproof, and the 67.2% Riemann bound.
+        </p>
+      </div>
+
+      <div class="ai-milestones-grid" id="ai-milestones-container">
+        <!-- Injected dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- VIEW 5: LEAN 4 FORMAL PROOF EXPLORER -->
+    <section id="view-lean-view" class="view-container">
+      <div class="hero-banner">
+        <div class="hero-pill">
+          <span data-i18n="hero_pill_lean">🛡️ Machine-Checked Mathematics</span>
+        </div>
+        <h1 class="hero-title">
+          <span data-i18n="hero_title_lean_1">Inspect </span>
+          <span class="highlight-text" data-i18n="hero_title_lean_2">Lean 4 Formal Proofs</span>
+        </h1>
+        <p class="hero-subtitle" data-i18n="hero_sub_lean">
+          See what computer-verified mathematics looks like side-by-side with plain English. Hover over terms to see definitions from the interactive formal proof dictionary.
+        </p>
+      </div>
+
+      <div id="lean-viewer-container">
+        <!-- Injected by lean_viewer.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <p data-i18n="footer_tagline">
+      <strong>WonderMath</strong> — Built for K-12 Students, Classrooms, and Curious Minds Everywhere.
+    </p>
+    <p style="margin-top: 0.5rem; color: var(--text-muted);" data-i18n="footer_sub">
+      Powered by Standard Web Technologies & Modern Lean 4 Formalization Systems.
+    </p>
+  </footer>
+
+  <!-- App Bootstrap JS -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
