@@ -16,6 +16,8 @@ import { FourColorSimulation } from "./simulations/four_color.js";
 import { UnitDistanceSimulation } from "./simulations/unit_distance.js";
 import { RiemannZerosSimulation } from "./simulations/riemann_zeros.js";
 import { JacobianGridSimulation } from "./simulations/jacobian_grid.js";
+import { EllipticCurveSimulation } from "./simulations/elliptic_curve.js";
+import { LessonExporter } from "./export/lesson_exporter.js";
 
 // Import AI Lab
 import { AIConjectureExplorer } from "./ai_lab/explorer.js";
@@ -99,8 +101,7 @@ class WonderMathApp {
     if (this.currentView === "detail" && this.activeConjectureId) {
       const conj = this.conjectures.find(c => c.id === this.activeConjectureId);
       if (conj) {
-        const activeTab = document.querySelector(".tab-btn.active")?.getAttribute("data-tab") || "rules";
-        this.renderDetailContent(conj, activeTab);
+        this.renderDetailContent(conj);
         this.initConjectureSimulation(conj);
       }
     }
@@ -147,8 +148,7 @@ class WonderMathApp {
     if (this.activeConjectureId && this.currentView === "detail") {
       const conj = this.conjectures.find(c => c.id === this.activeConjectureId);
       if (conj) {
-        const activeTab = document.querySelector(".tab-btn.active")?.getAttribute("data-tab") || "rules";
-        this.renderDetailContent(conj, activeTab);
+        this.renderDetailContent(conj);
         this.initConjectureSimulation(conj);
       }
     }
@@ -219,7 +219,7 @@ class WonderMathApp {
     this.initConjectureSimulation(conj);
   }
 
-  renderDetailContent(conj, activeTab = "rules") {
+  renderDetailContent(conj) {
     const container = document.getElementById("conjecture-detail-content");
     if (!container) return;
 
@@ -253,20 +253,84 @@ class WonderMathApp {
             ${conj.statusBadge}
           </span>
         </div>
+      </section>
 
-        <div class="detail-analogy-box">
+      <!-- 4-Zone Quick Jump Navigation (from mathexperiment & edulab) -->
+      <nav class="zone-nav-bar" aria-label="4-Zone Navigation">
+        <button class="zone-nav-pill active" data-target="zone-principles">${i18n.t("nav_zone_1")}</button>
+        <button class="zone-nav-pill" data-target="zone-history">${i18n.t("nav_zone_2")}</button>
+        <button class="zone-nav-pill" data-target="zone-lab">${i18n.t("nav_zone_3")}</button>
+        <button class="zone-nav-pill" data-target="zone-extension">${i18n.t("nav_zone_4")}</button>
+      </nav>
+
+      <!-- ZONE ①: Principles & Formulations -->
+      <section class="zone-card animate-fade-in" id="zone-principles">
+        <div class="zone-header-row">
+          <div class="zone-title-wrap">
+            <span class="zone-badge z1">${i18n.t("zone_1_pill")}</span>
+            <div class="zone-title-text">
+              <h3>${i18n.t("zone_1_title")}</h3>
+              <p>${i18n.t("zone_1_sub")}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-analogy-box" style="margin-bottom: 1.5rem;">
           <strong>💡 ${i18n.t("concept_overview_label")} (${gradeName})</strong>
           <p style="margin-top: 0.35rem;">${gradeData.analogy}</p>
         </div>
+
+        <h4 style="margin-bottom: 0.75rem; color: var(--accent-cyan); font-size: 1.05rem;">${i18n.t("rules_title")} (${gradeName})</h4>
+        <ul class="english-points" style="margin-bottom: 1.5rem;">
+          ${gradeData.rules.map(r => `<li>${r}</li>`).join('')}
+        </ul>
+
+        <h4 style="margin-bottom: 0.75rem; color: var(--accent-rose); font-size: 1.05rem;">${i18n.t("mystery_title")} (${gradeName})</h4>
+        <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          ${gradeData.mystery}
+        </p>
+
+        <div class="lean-tip-box">
+          <span class="tip-icon">🌟</span>
+          <p><strong>${i18n.t("fun_fact_label")}</strong> ${gradeData.funFact}</p>
+        </div>
       </section>
 
-      <section class="sim-stage-box animate-fade-in">
-        <div class="sim-stage-header">
-          <div>
-            <h3>${i18n.t("sim_header_title")}</h3>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">
-              ${i18n.t("sim_header_sub")}
-            </p>
+      <!-- ZONE ②: Historical Chronicles & Milestones -->
+      <section class="zone-card animate-fade-in" id="zone-history">
+        <div class="zone-header-row">
+          <div class="zone-title-wrap">
+            <span class="zone-badge z2">${i18n.t("zone_2_pill")}</span>
+            <div class="zone-title-text">
+              <h3>${i18n.t("zone_2_title")}</h3>
+              <p>${i18n.t("zone_2_sub")}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="history-timeline">
+          ${conj.history.map(item => `
+            <div class="timeline-item">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <span class="timeline-year">${item.year}</span>
+                <span class="timeline-author">— ${item.author}</span>
+                <div class="timeline-note">${item.note}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+
+      <!-- ZONE ③: Hands-On Interactive Laboratory -->
+      <section class="zone-card animate-fade-in" id="zone-lab">
+        <div class="zone-header-row">
+          <div class="zone-title-wrap">
+            <span class="zone-badge z3">${i18n.t("zone_3_pill")}</span>
+            <div class="zone-title-text">
+              <h3>${i18n.t("zone_3_title")}</h3>
+              <p>${i18n.t("zone_3_sub")}</p>
+            </div>
           </div>
         </div>
 
@@ -277,70 +341,72 @@ class WonderMathApp {
         <div class="sim-stats-grid" id="sim-stats-container"></div>
       </section>
 
-      <section class="sim-stage-box animate-fade-in">
-        <div class="detail-tabs">
-          <button class="tab-btn ${activeTab === 'rules' ? 'active' : ''}" data-tab="rules">${i18n.t("tab_rules")}</button>
-          <button class="tab-btn ${activeTab === 'history' ? 'active' : ''}" data-tab="history">${i18n.t("tab_history")}</button>
-          <button class="tab-btn ${activeTab === 'lean' ? 'active' : ''}" data-tab="lean">${i18n.t("tab_lean")}</button>
+      <!-- ZONE ④: Extension, AI Exploration & Lean 4 Formalization -->
+      <section class="zone-card animate-fade-in" id="zone-extension">
+        <div class="zone-header-row">
+          <div class="zone-title-wrap">
+            <span class="zone-badge z4">${i18n.t("zone_4_pill")}</span>
+            <div class="zone-title-text">
+              <h3>${i18n.t("zone_4_title")}</h3>
+              <p>${i18n.t("zone_4_sub")}</p>
+            </div>
+          </div>
         </div>
 
-        <div class="tab-content">
-          <div class="tab-pane ${activeTab === 'rules' ? 'active' : ''}" id="tab-rules">
-            <h4 style="margin-bottom: 0.75rem; color: var(--accent-cyan);">${i18n.t("rules_title")} (${gradeName})</h4>
-            <ul class="english-points" style="margin-bottom: 1.5rem;">
-              ${gradeData.rules.map(r => `<li>${r}</li>`).join('')}
-            </ul>
+        <div style="margin-bottom: 1.25rem;">
+          <span class="ai-chip">${i18n.t("lean_header_title")}</span>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
+            ${i18n.t("lean_header_sub")}
+          </p>
+        </div>
+        <pre class="lean-code-editor"><code>${conj.leanCode}</code></pre>
 
-            <h4 style="margin-bottom: 0.75rem; color: var(--accent-rose);">${i18n.t("mystery_title")} (${gradeName})</h4>
-            <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
-              ${gradeData.mystery}
-            </p>
-
-            <div class="lean-tip-box">
-              <span class="tip-icon">🌟</span>
-              <p><strong>${i18n.t("fun_fact_label")}</strong> ${gradeData.funFact}</p>
-            </div>
+        <!-- Lesson Exporter Banner (from edulab) -->
+        <div class="export-lesson-banner">
+          <div class="export-lesson-info">
+            <h4>📄 ${i18n.t("btn_export_lesson")}</h4>
+            <p>${i18n.t("export_toast_msg")}</p>
           </div>
-
-          <div class="tab-pane ${activeTab === 'history' ? 'active' : ''}" id="tab-history">
-            <h4 style="margin-bottom: 0.75rem;">${i18n.t("history_journey_title")}</h4>
-            <div class="history-timeline">
-              ${conj.history.map(item => `
-                <div class="timeline-item">
-                  <div class="timeline-dot"></div>
-                  <div class="timeline-content">
-                    <span class="timeline-year">${item.year}</span>
-                    <span class="timeline-author">— ${item.author}</span>
-                    <div class="timeline-note">${item.note}</div>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-
-          <div class="tab-pane ${activeTab === 'lean' ? 'active' : ''}" id="tab-lean">
-            <div style="margin-bottom: 1rem;">
-              <span class="ai-chip">${i18n.t("lean_header_title")}</span>
-              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
-                ${i18n.t("lean_header_sub")}
-              </p>
-            </div>
-            <pre class="lean-code-editor"><code>${conj.leanCode}</code></pre>
-          </div>
+          <button class="btn-export-action" id="btn-export-lesson-action">
+            ${i18n.t("btn_export_lesson")}
+          </button>
         </div>
       </section>
     `;
 
-    container.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        container.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-        container.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
-        btn.classList.add("active");
-        const tabKey = btn.getAttribute("data-tab");
-        const pane = container.querySelector(`#tab-${tabKey}`);
-        if (pane) pane.classList.add("active");
+    // Hook up zone navigation smooth scrolling
+    container.querySelectorAll(".zone-nav-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        container.querySelectorAll(".zone-nav-pill").forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+        const targetId = pill.getAttribute("data-target");
+        const el = document.getElementById(targetId);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       });
     });
+
+    // Hook up offline lesson export
+    document.getElementById("btn-export-lesson-action")?.addEventListener("click", () => {
+      LessonExporter.exportLesson(conj, this.currentGrade);
+      this.showToast(i18n.t("export_toast_title"), i18n.t("export_toast_msg"));
+    });
+  }
+
+  showToast(title, msg) {
+    const existing = document.querySelector(".wm-toast");
+    if (existing) existing.remove();
+    const toast = document.createElement("div");
+    toast.className = "wm-toast";
+    toast.innerHTML = `<span>✅</span><div><strong>${title}</strong><div style="font-size:0.8rem; color:#94a3b8;">${msg}</div></div>`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateY(20px)";
+      toast.style.transition = "all 0.3s ease";
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
   }
 
   getSimulationTemplate(id) {
@@ -349,11 +415,20 @@ class WonderMathApp {
         <div class="sim-controls-bar">
           <div class="input-slider-group">
             <label>N:</label>
-            <input type="number" id="collatz-input" class="custom-input" value="27" min="1" max="100000">
-            <button class="btn-primary" id="btn-collatz-run">${i18n.t("sim_orbit_launch")}</button>
+            <input type="number" id="collatz-input" class="custom-input" value="27" min="1" max="1000000">
+            <button class="btn-control-step" id="btn-collatz-step">${i18n.t("btn_step")}</button>
+            <button class="btn-primary" id="btn-collatz-scan">${i18n.t("btn_scan")}</button>
+            <button class="btn-secondary" id="btn-collatz-reset">${i18n.t("btn_reset")}</button>
             <button class="btn-secondary" id="btn-collatz-rand">${i18n.t("sim_random")}</button>
           </div>
           <div class="input-slider-group">
+            <label>${i18n.t("speed_label")}</label>
+            <select id="collatz-speed-select" class="custom-select" style="width: 80px;">
+              <option value="0.5">0.5x</option>
+              <option value="1" selected>1x</option>
+              <option value="2">2x</option>
+              <option value="5">5x</option>
+            </select>
             <label>${i18n.t("sim_rule")}</label>
             <select id="collatz-rule-select" class="custom-select">
               <option value="3,1" selected>${i18n.t("collatz_std")}</option>
@@ -361,6 +436,12 @@ class WonderMathApp {
               <option value="3,-1">${i18n.t("collatz_3n_minus_1")}</option>
             </select>
           </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.85rem; flex-wrap: wrap;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">${i18n.t("presets_label")}</span>
+          <button class="preset-pill-btn" data-seed="27">N = 27 (Everest: 111 steps)</button>
+          <button class="preset-pill-btn" data-seed="97">N = 97 (118 steps)</button>
+          <button class="preset-pill-btn" data-seed="871">N = 871 (178 steps)</button>
         </div>
         <div class="sim-canvas-container">
           <canvas id="collatz-canvas"></canvas>
@@ -383,6 +464,33 @@ class WonderMathApp {
       `;
     } else if (id === "four-color") {
       return `<div id="four-color-sim-container"></div>`;
+    } else if (id === "fermat") {
+      return `
+        <div class="sim-controls-bar">
+          <div class="input-slider-group">
+            <label>${i18n.t("ec_param_a")}</label>
+            <input type="number" id="ec-param-a" class="custom-input" value="-4" step="0.5" style="width: 70px;">
+            <label>${i18n.t("ec_param_b")}</label>
+            <input type="number" id="ec-param-b" class="custom-input" value="0" step="0.5" style="width: 70px;">
+            <button class="btn-primary" id="btn-ec-apply">${i18n.t("ec_double_p")}</button>
+          </div>
+          <div class="input-slider-group">
+            <label>${i18n.t("presets_label")}</label>
+            <select id="ec-preset-select" class="custom-select">
+              <option value="standard" selected>${i18n.t("ec_preset_std")}</option>
+              <option value="rank1">${i18n.t("ec_preset_rank1")}</option>
+              <option value="frey">${i18n.t("ec_preset_frey")}</option>
+            </select>
+          </div>
+        </div>
+        <div class="detail-analogy-box" style="margin-bottom: 1rem; background: rgba(244,63,94,0.08); border-color: var(--accent-rose);">
+          <strong style="color: var(--accent-rose);">🔗 ${i18n.t("ec_connection_fermat")}</strong>
+          <p style="margin-top: 0.35rem; font-size: 0.88rem; color: #cbd5e1;">${i18n.t("ec_connection_desc")}</p>
+        </div>
+        <div class="sim-canvas-container" style="height: 420px;">
+          <canvas id="elliptic-canvas"></canvas>
+        </div>
+      `;
     } else if (id === "erdos-distance") {
       return `
         <div class="sim-controls-bar">
@@ -434,10 +542,18 @@ class WonderMathApp {
       this.activeSimulation = sim;
       sim.calculateTrajectory(27, 3, 1);
 
-      document.getElementById("btn-collatz-run")?.addEventListener("click", () => {
-        const input = document.getElementById("collatz-input");
-        const ruleVal = document.getElementById("collatz-rule-select")?.value.split(',').map(Number) || [3, 1];
-        sim.calculateTrajectory(input.value, ruleVal[0], ruleVal[1]);
+      const scanBtn = document.getElementById("btn-collatz-scan");
+
+      document.getElementById("btn-collatz-step")?.addEventListener("click", () => {
+        sim.step();
+      });
+
+      scanBtn?.addEventListener("click", () => {
+        sim.toggleScan(scanBtn);
+      });
+
+      document.getElementById("btn-collatz-reset")?.addEventListener("click", () => {
+        sim.reset(scanBtn);
       });
 
       document.getElementById("btn-collatz-rand")?.addEventListener("click", () => {
@@ -446,12 +562,48 @@ class WonderMathApp {
         if (input) input.value = rand;
         const ruleVal = document.getElementById("collatz-rule-select")?.value.split(',').map(Number) || [3, 1];
         sim.calculateTrajectory(rand, ruleVal[0], ruleVal[1]);
+        sim.play(scanBtn);
+      });
+
+      document.getElementById("collatz-speed-select")?.addEventListener("change", (e) => {
+        sim.setSpeed(e.target.value);
       });
 
       document.getElementById("collatz-rule-select")?.addEventListener("change", (e) => {
         const [a, b] = e.target.value.split(',').map(Number);
         const input = document.getElementById("collatz-input");
-        sim.calculateTrajectory(input.value || 27, a, b);
+        sim.calculateTrajectory(input?.value || 27, a, b);
+      });
+
+      document.querySelectorAll(".preset-pill-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const seed = parseInt(btn.getAttribute("data-seed"), 10);
+          sim.loadPreset(seed, scanBtn);
+        });
+      });
+    } else if (conj.id === "fermat") {
+      const sim = new EllipticCurveSimulation("elliptic-canvas", "sim-stats-container");
+      this.activeSimulation = sim;
+
+      document.getElementById("btn-ec-apply")?.addEventListener("click", () => {
+        sim.doubleP();
+      });
+
+      const updateParams = () => {
+        const a = document.getElementById("ec-param-a")?.value;
+        const b = document.getElementById("ec-param-b")?.value;
+        sim.setParams(a, b);
+      };
+
+      document.getElementById("ec-param-a")?.addEventListener("input", updateParams);
+      document.getElementById("ec-param-b")?.addEventListener("input", updateParams);
+
+      document.getElementById("ec-preset-select")?.addEventListener("change", (e) => {
+        sim.loadPreset(e.target.value);
+        const aInput = document.getElementById("ec-param-a");
+        const bInput = document.getElementById("ec-param-b");
+        if (aInput) aInput.value = sim.a;
+        if (bInput) bInput.value = sim.b;
       });
     } else if (conj.id === "twin-primes") {
       const sim = new PrimeGapsSimulation("primes-sim-container", "sim-stats-container");

@@ -1,6 +1,7 @@
 /**
  * Collatz Conjecture Interactive Simulation
- * Hailstone trajectory curve, peak altitude, step statistics, and cycle visualizer.
+ * Hailstone trajectory curve, granular step-by-step controls, auto-scan,
+ * speed adjustment, classic presets (27, 97, 871), and live formula telemetry.
  */
 
 import { i18n } from "../i18n/i18n.js";
@@ -11,10 +12,13 @@ export class CollatzSimulation {
     this.ctx = this.canvas?.getContext("2d");
     this.statsContainer = document.getElementById(statsContainerId);
     this.trajectory = [];
-    this.animFrame = null;
+    this.animTimer = null;
     this.currentStep = 0;
     this.ruleA = 3;
     this.ruleB = 1;
+    this.isPlaying = false;
+    this.speedDelay = 80; // ms per step
+
     this.resizeCanvas();
     window.addEventListener("resize", () => this.resizeCanvas());
   }
@@ -25,11 +29,12 @@ export class CollatzSimulation {
     this.canvas.width = Math.max(320, rect.width - 24);
     this.canvas.height = 360;
     if (this.trajectory.length > 0) {
-      this.drawTrajectory(this.trajectory.length);
+      this.drawTrajectory(this.currentStep || this.trajectory.length);
     }
   }
 
-  calculateTrajectory(start, a = 3, b = 1, maxSteps = 1000) {
+  calculateTrajectory(start, a = 3, b = 1, maxSteps = 1500) {
+    this.pause();
     this.ruleA = a;
     this.ruleB = b;
     let n = Math.max(1, parseInt(start, 10) || 1);
@@ -46,33 +51,89 @@ export class CollatzSimulation {
       path.push(n);
 
       if (a === 3 && b === 1 && n === 1) {
-        break; // reached standard loop
+        break;
       }
       if (visited.has(n)) {
         cycleDetected = true;
         break;
       }
       visited.add(n);
-      if (n > 1e12 || n < -1e12) break;
+      if (n > 1e14 || n < -1e14) break;
     }
 
     this.trajectory = path;
     this.cycleDetected = cycleDetected;
-    this.startAnimation();
+    this.currentStep = 1;
+    this.drawTrajectory(this.currentStep);
     this.updateStats();
   }
 
-  startAnimation() {
-    if (this.animFrame) cancelAnimationFrame(this.animFrame);
-    this.currentStep = 1;
-    const animate = () => {
+  step() {
+    this.pause();
+    if (this.trajectory.length === 0) return;
+    if (this.currentStep < this.trajectory.length) {
+      this.currentStep++;
       this.drawTrajectory(this.currentStep);
+      this.updateStats();
+    }
+  }
+
+  toggleScan(btnEl) {
+    if (this.isPlaying) {
+      this.pause(btnEl);
+    } else {
+      this.play(btnEl);
+    }
+  }
+
+  play(btnEl) {
+    if (this.trajectory.length === 0) return;
+    this.isPlaying = true;
+    if (btnEl) btnEl.innerHTML = i18n.t("btn_pause");
+
+    if (this.currentStep >= this.trajectory.length) {
+      this.currentStep = 1;
+    }
+
+    const loop = () => {
+      if (!this.isPlaying) return;
       if (this.currentStep < this.trajectory.length) {
-        this.currentStep = Math.min(this.trajectory.length, this.currentStep + Math.max(1, Math.floor(this.trajectory.length / 80)));
-        this.animFrame = requestAnimationFrame(animate);
+        this.currentStep++;
+        this.drawTrajectory(this.currentStep);
+        this.updateStats();
+        this.animTimer = setTimeout(loop, this.speedDelay);
+      } else {
+        this.pause(btnEl);
       }
     };
-    animate();
+    loop();
+  }
+
+  pause(btnEl) {
+    this.isPlaying = false;
+    if (this.animTimer) clearTimeout(this.animTimer);
+    if (btnEl) btnEl.innerHTML = i18n.t("btn_scan");
+  }
+
+  reset(btnEl) {
+    this.pause(btnEl);
+    this.currentStep = 1;
+    if (this.trajectory.length > 0) {
+      this.drawTrajectory(this.currentStep);
+      this.updateStats();
+    }
+  }
+
+  setSpeed(multiplier) {
+    // 0.5x -> 160ms, 1x -> 80ms, 2x -> 40ms, 5x -> 16ms
+    this.speedDelay = Math.max(10, Math.round(80 / parseFloat(multiplier)));
+  }
+
+  loadPreset(n, btnEl) {
+    const input = document.getElementById("collatz-input");
+    if (input) input.value = n;
+    this.calculateTrajectory(n, this.ruleA, this.ruleB);
+    this.play(btnEl);
   }
 
   drawTrajectory(stepCount) {
@@ -148,11 +209,11 @@ export class CollatzSimulation {
 
       if (isPeak || isLast || visibleData.length < 30) {
         ctx.beginPath();
-        ctx.arc(x, y, isPeak ? 5 : (isLast ? 4 : 2.5), 0, Math.PI * 2);
-        ctx.fillStyle = isPeak ? "#f43f5e" : (isLast ? "#22c55e" : "#38bdf8");
+        ctx.arc(x, y, isPeak ? 6 : (isLast ? 5 : 2.5), 0, Math.PI * 2);
+        ctx.fillStyle = isPeak ? "#f43f5e" : (isLast ? "#10b981" : "#38bdf8");
         ctx.fill();
         ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.5;
         ctx.stroke();
 
         if (isPeak && i > 0) {
@@ -171,12 +232,26 @@ export class CollatzSimulation {
     ctx.fillText("Steps (Time)", w / 2, h - 12);
   }
 
+  getStepEquation(idx) {
+    if (idx <= 0 || idx >= this.trajectory.length) return "Start";
+    const prev = this.trajectory[idx - 1];
+    const curr = this.trajectory[idx];
+    if (prev % 2 === 0) {
+      return `${prev} (even) ÷ 2 = ${curr}`;
+    } else {
+      return `3 × ${prev} (odd) + 1 = ${curr}`;
+    }
+  }
+
   updateStats() {
     if (!this.statsContainer || this.trajectory.length === 0) return;
     const start = this.trajectory[0];
-    const steps = this.trajectory.length - 1;
-    const peak = Math.max(...this.trajectory);
-    const reachesOne = this.trajectory.includes(1);
+    const totalSteps = this.trajectory.length - 1;
+    const currentStep = this.currentStep;
+    const currentVal = this.trajectory[Math.min(currentStep - 1, this.trajectory.length - 1)];
+    const peak = Math.max(...this.trajectory.slice(0, currentStep));
+    const reachesOne = this.trajectory.slice(0, currentStep).includes(1);
+    const stepEq = this.getStepEquation(currentStep - 1);
 
     this.statsContainer.innerHTML = `
       <div class="stat-card">
@@ -184,17 +259,19 @@ export class CollatzSimulation {
         <span class="stat-val highlight">${start.toLocaleString()}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">${i18n.t("stat_steps_to_finish")}</span>
-        <span class="stat-val">${steps}</span>
+        <span class="stat-label">Current Step / Total</span>
+        <span class="stat-val highlight">${currentStep - 1} <small style="font-size:0.75rem; color:var(--text-muted);">/ ${totalSteps}</small></span>
+        <span style="font-size:0.72rem; color:var(--accent-cyan); margin-top:2px;">Val: ${currentVal.toLocaleString()}</span>
       </div>
       <div class="stat-card">
         <span class="stat-label">${i18n.t("stat_peak_altitude")}</span>
         <span class="stat-val ${peak > start * 10 ? 'alert' : ''}">${peak.toLocaleString()}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">${i18n.t("stat_outcome")}</span>
-        <span class="stat-val ${reachesOne ? 'success' : 'warning'}">
-          ${reachesOne ? i18n.t("stat_landed_1") : (this.cycleDetected ? i18n.t("stat_trapped_cycle") : i18n.t("stat_escaped"))}
+        <span class="stat-label">Step Equation</span>
+        <span class="stat-val" style="font-size:0.85rem; color:#cbd5e1; font-family:monospace;">${stepEq}</span>
+        <span style="font-size:0.72rem; color:${reachesOne ? 'var(--accent-emerald)' : 'var(--accent-amber)'}; margin-top:2px;">
+          ${reachesOne ? i18n.t("stat_landed_1") : (this.cycleDetected ? i18n.t("stat_trapped_cycle") : "Ascending...")}
         </span>
       </div>
     `;
