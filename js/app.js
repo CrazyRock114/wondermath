@@ -676,9 +676,18 @@ class WonderMathApp {
   }
 }
 
-// Bootstrap on DOM ready
-document.addEventListener("DOMContentLoaded", () => {
+// Bootstrap on DOM ready or immediately if already loaded
+function startApp() {
+  if (window.wonderMathApp) return;
   const app = new WonderMathApp();
   app.init();
   window.wonderMathApp = app;
-});
+}
+
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", startApp);
+  } else {
+    startApp();
+  }
+}

@@ -14,20 +14,28 @@ class I18nManager {
 
   detectLanguage() {
     // 1. Check localStorage
-    const saved = localStorage.getItem("wondermath_lang");
-    if (saved && this.supportedLanguages.includes(saved)) {
-      return saved;
-    }
+    try {
+      if (typeof localStorage !== "undefined" && localStorage) {
+        const saved = localStorage.getItem("wondermath_lang");
+        if (saved && this.supportedLanguages.includes(saved)) {
+          return saved;
+        }
+      }
+    } catch (e) {}
 
     // 2. Check browser language
-    const navLang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
-    if (navLang.startsWith("de")) return "de";
-    if (navLang.startsWith("fr")) return "fr";
-    if (navLang.startsWith("it")) return "it";
-    if (navLang.startsWith("ja")) return "ja";
-    if (navLang.startsWith("ko")) return "ko";
-    if (navLang.includes("tw") || navLang.includes("hk") || navLang.includes("hant")) return "zh-Hant";
-    if (navLang.startsWith("zh")) return "zh-Hans";
+    try {
+      if (typeof navigator !== "undefined" && navigator) {
+        const navLang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+        if (navLang.startsWith("de")) return "de";
+        if (navLang.startsWith("fr")) return "fr";
+        if (navLang.startsWith("it")) return "it";
+        if (navLang.startsWith("ja")) return "ja";
+        if (navLang.startsWith("ko")) return "ko";
+        if (navLang.includes("tw") || navLang.includes("hk") || navLang.includes("hant")) return "zh-Hant";
+        if (navLang.startsWith("zh")) return "zh-Hans";
+      }
+    } catch (e) {}
 
     return "en";
   }
@@ -39,8 +47,14 @@ class I18nManager {
   setLanguage(lang) {
     if (!this.supportedLanguages.includes(lang)) return;
     this.currentLang = lang;
-    localStorage.setItem("wondermath_lang", lang);
-    document.documentElement.lang = lang;
+    try {
+      if (typeof localStorage !== "undefined" && localStorage) {
+        localStorage.setItem("wondermath_lang", lang);
+      }
+    } catch (e) {}
+    if (typeof document !== "undefined" && document.documentElement) {
+      document.documentElement.lang = lang;
+    }
 
     this.applyDOMTranslations();
     this.notifyListeners(lang);

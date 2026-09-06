@@ -93,7 +93,7 @@ export const LOCALES = {
     hunter_btn_stop: "⏹️ Stop",
     hunter_ready_log: "Ready. Select a rule and launch the automated search worker.",
     hunter_tested: "Tested: {count} numbers",
-    hunter_anomalies: "{count} Anomalies Found"
+    hunter_anomalies: "{count} Anomalies Found",
     zone_1_pill: "ZONE ①",
     zone_1_title: "Principles & Mathematical Formulations",
     zone_1_sub: "Intuitive metaphors, definitions, and rules tailored to your grade level",
@@ -227,7 +227,7 @@ export const LOCALES = {
     hunter_btn_stop: "⏹️ Stoppen",
     hunter_ready_log: "Bereit. Regel wählen und Suche starten.",
     hunter_tested: "Getestet: {count} Zahlen",
-    hunter_anomalies: "{count} Anomalien gefunden"
+    hunter_anomalies: "{count} Anomalien gefunden",
     zone_1_pill: "ZONE ①",
     zone_1_title: "Prinzipien & Mathematische Formulierungen",
     zone_1_sub: "Anschauliche Metaphern, Definitionen und Regeln für deine Klassenstufe",
@@ -361,7 +361,7 @@ export const LOCALES = {
     hunter_btn_stop: "⏹️ Arrêter",
     hunter_ready_log: "Prêt. Sélectionnez une règle et lancez le chercheur.",
     hunter_tested: "Testé : {count} nombres",
-    hunter_anomalies: "{count} anomalies trouvées"
+    hunter_anomalies: "{count} anomalies trouvées",
     zone_1_pill: "ZONE ①",
     zone_1_title: "Principes & Formulations Mathématiques",
     zone_1_sub: "Métaphores intuitives, définitions et règles adaptées à votre niveau scolaire",
@@ -495,7 +495,7 @@ export const LOCALES = {
     hunter_btn_stop: "⏹️ Ferma",
     hunter_ready_log: "Pronto. Seleziona una regola e avvia la ricerca.",
     hunter_tested: "Testati: {count} numeri",
-    hunter_anomalies: "{count} anomalie trovate"
+    hunter_anomalies: "{count} anomalie trovate",
     zone_1_pill: "ZONA ①",
     zone_1_title: "Principi & Formulazioni Matematiche",
     zone_1_sub: "Metafore intuitive, definizioni e regole adattate al livello scolastico",
@@ -629,7 +629,7 @@ export const LOCALES = {
     hunter_btn_stop: "⏹️ 停止",
     hunter_ready_log: "待機中。ルールを選択し、探索ワーカーを開始してください。",
     hunter_tested: "テスト済み: {count} 件",
-    hunter_anomalies: "{count} 件の異常・例外を検出"
+    hunter_anomalies: "{count} 件の異常・例外を検出",
     zone_1_pill: "第①ゾーン",
     zone_1_title: "基本原理と数学的定式化",
     zone_1_sub: "学年に合わせた直感的な比喩・定義・ルールの解説",
@@ -763,7 +763,7 @@ export const LOCALES = {
     hunter_btn_stop: "⏹️ 중지",
     hunter_ready_log: "준비 완료. 규칙을 선택하고 탐색기를 시작하세요.",
     hunter_tested: "테스트 완료: {count} 개",
-    hunter_anomalies: "{count} 개의 이상 발견"
+    hunter_anomalies: "{count} 개의 이상 발견",
     zone_1_pill: "제①구역",
     zone_1_title: "원리 설명 및 수학적 정의",
     zone_1_sub: "학년 수준에 맞춘 직관적인 비유, 수학적 정의 및 규칙",
@@ -897,7 +897,7 @@ export const LOCALES = {
     hunter_btn_stop: "⏹️ 停止",
     hunter_ready_log: "就绪。请选择待验证规则并启动搜索计算任务。",
     hunter_tested: "已检验: {count} 个数字",
-    hunter_anomalies: "发现 {count} 个异常"
+    hunter_anomalies: "发现 {count} 个异常",
     zone_1_pill: "第一分区 ①",
     zone_1_title: "原理讲解与数学表述",
     zone_1_sub: "契合学生年龄段的直观比喻、核心定义与形式化表述",
@@ -1031,7 +1031,7 @@ export const LOCALES = {
     hunter_btn_stop: "⏹️ 停止",
     hunter_ready_log: "就緒。請選擇待驗證規則並啟動搜尋計算任務。",
     hunter_tested: "已檢驗: {count} 個數字",
-    hunter_anomalies: "發現 {count} 個異常"
+    hunter_anomalies: "發現 {count} 個異常",
     zone_1_pill: "第一分區 ①",
     zone_1_title: "原理講解與數學表述",
     zone_1_sub: "契合學生年齡段的直觀比喻、核心定義與形式化表述",
