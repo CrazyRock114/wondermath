@@ -99,7 +99,8 @@ class WonderMathApp {
     if (this.currentView === "detail" && this.activeConjectureId) {
       const conj = this.conjectures.find(c => c.id === this.activeConjectureId);
       if (conj) {
-        this.renderDetailContent(conj);
+        const activeTab = document.querySelector(".tab-btn.active")?.getAttribute("data-tab") || "rules";
+        this.renderDetailContent(conj, activeTab);
         this.initConjectureSimulation(conj);
       }
     }
@@ -145,7 +146,11 @@ class WonderMathApp {
     this.renderGallery();
     if (this.activeConjectureId && this.currentView === "detail") {
       const conj = this.conjectures.find(c => c.id === this.activeConjectureId);
-      if (conj) this.renderDetailContent(conj);
+      if (conj) {
+        const activeTab = document.querySelector(".tab-btn.active")?.getAttribute("data-tab") || "rules";
+        this.renderDetailContent(conj, activeTab);
+        this.initConjectureSimulation(conj);
+      }
     }
   }
 
@@ -214,7 +219,7 @@ class WonderMathApp {
     this.initConjectureSimulation(conj);
   }
 
-  renderDetailContent(conj) {
+  renderDetailContent(conj, activeTab = "rules") {
     const container = document.getElementById("conjecture-detail-content");
     if (!container) return;
 
@@ -225,8 +230,15 @@ class WonderMathApp {
     else if (conj.statusBadge.includes("FORMALIZED") || conj.statusBadge.includes("形式化")) badgeClass = "badge-formalized";
     else if (conj.statusBadge.includes("PROVEN") || conj.statusBadge.includes("証明済み") || conj.statusBadge.includes("已证明")) badgeClass = "badge-proven";
 
+    const gradeName = i18n.t(`grade_${this.currentGrade}`);
+
     container.innerHTML = `
       <section class="detail-hero animate-fade-in">
+        <div class="grade-tier-indicator grade-${this.currentGrade}">
+          <span class="tier-pill">${gradeName}</span>
+          <span class="tier-focus-text">🎯 ${gradeData.tagline}</span>
+        </div>
+
         <div class="detail-header-row">
           <div class="detail-title-group">
             <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
@@ -243,7 +255,7 @@ class WonderMathApp {
         </div>
 
         <div class="detail-analogy-box">
-          <strong>💡 ${i18n.t("concept_overview_label")}</strong>
+          <strong>💡 ${i18n.t("concept_overview_label")} (${gradeName})</strong>
           <p style="margin-top: 0.35rem;">${gradeData.analogy}</p>
         </div>
       </section>
@@ -267,19 +279,19 @@ class WonderMathApp {
 
       <section class="sim-stage-box animate-fade-in">
         <div class="detail-tabs">
-          <button class="tab-btn active" data-tab="rules">${i18n.t("tab_rules")}</button>
-          <button class="tab-btn" data-tab="history">${i18n.t("tab_history")}</button>
-          <button class="tab-btn" data-tab="lean">${i18n.t("tab_lean")}</button>
+          <button class="tab-btn ${activeTab === 'rules' ? 'active' : ''}" data-tab="rules">${i18n.t("tab_rules")}</button>
+          <button class="tab-btn ${activeTab === 'history' ? 'active' : ''}" data-tab="history">${i18n.t("tab_history")}</button>
+          <button class="tab-btn ${activeTab === 'lean' ? 'active' : ''}" data-tab="lean">${i18n.t("tab_lean")}</button>
         </div>
 
         <div class="tab-content">
-          <div class="tab-pane active" id="tab-rules">
-            <h4 style="margin-bottom: 0.75rem; color: var(--accent-cyan);">${i18n.t("rules_title")}</h4>
+          <div class="tab-pane ${activeTab === 'rules' ? 'active' : ''}" id="tab-rules">
+            <h4 style="margin-bottom: 0.75rem; color: var(--accent-cyan);">${i18n.t("rules_title")} (${gradeName})</h4>
             <ul class="english-points" style="margin-bottom: 1.5rem;">
               ${gradeData.rules.map(r => `<li>${r}</li>`).join('')}
             </ul>
 
-            <h4 style="margin-bottom: 0.75rem; color: var(--accent-rose);">${i18n.t("mystery_title")}</h4>
+            <h4 style="margin-bottom: 0.75rem; color: var(--accent-rose);">${i18n.t("mystery_title")} (${gradeName})</h4>
             <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
               ${gradeData.mystery}
             </p>
@@ -290,7 +302,7 @@ class WonderMathApp {
             </div>
           </div>
 
-          <div class="tab-pane" id="tab-history">
+          <div class="tab-pane ${activeTab === 'history' ? 'active' : ''}" id="tab-history">
             <h4 style="margin-bottom: 0.75rem;">${i18n.t("history_journey_title")}</h4>
             <div class="history-timeline">
               ${conj.history.map(item => `
@@ -306,7 +318,7 @@ class WonderMathApp {
             </div>
           </div>
 
-          <div class="tab-pane" id="tab-lean">
+          <div class="tab-pane ${activeTab === 'lean' ? 'active' : ''}" id="tab-lean">
             <div style="margin-bottom: 1rem;">
               <span class="ai-chip">${i18n.t("lean_header_title")}</span>
               <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
