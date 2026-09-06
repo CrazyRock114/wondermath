@@ -4,6 +4,8 @@
  * oscillating wave graph, and 2026 AI 67.2% critical line bound indicator.
  */
 
+import { i18n } from "../i18n/i18n.js";
+
 export class RiemannZerosSimulation {
   constructor(canvasId, statsId) {
     this.canvas = document.getElementById(canvasId);
@@ -163,21 +165,56 @@ export class RiemannZerosSimulation {
 
   updateStats() {
     if (!this.statsContainer) return;
+    const lang = i18n.getLanguage();
+
+    const tCritical = {
+      en: "Critical Line",
+      de: "Kritische Gerade",
+      fr: "Ligne critique",
+      it: "Retta critica",
+      ja: "臨界線",
+      ko: "임계선",
+      "zh-Hans": "临界线",
+      "zh-Hant": "臨界線"
+    }[lang] || "Critical Line";
+
+    const tPrev = {
+      en: "Previous Proven Bound",
+      de: "Bisher bewiesene Schranke",
+      fr: "Borne prouvée antérieure",
+      it: "Limite precedente provato",
+      ja: "以前の証明済み割合",
+      ko: "기존 증명 비율",
+      "zh-Hans": "过往人类最佳界",
+      "zh-Hant": "過往人類最佳界"
+    }[lang] || "Previous Proven Bound";
+
+    const tAiLeap = {
+      en: "2026 AI Leap (Claude)",
+      de: "KI-Durchbruch 2026 (Claude)",
+      fr: "Percée IA 2026 (Claude)",
+      it: "Svolta AI 2026 (Claude)",
+      ja: "2026年 AIによる躍進",
+      ko: "2026년 AI 도약",
+      "zh-Hans": "2026年 AI里程碑跃升",
+      "zh-Hant": "2026年 AI里程碑躍升"
+    }[lang] || "2026 AI Leap (Claude)";
+
     this.statsContainer.innerHTML = `
       <div class="stat-card">
-        <span class="stat-label">Critical Line</span>
+        <span class="stat-label">${tCritical}</span>
         <span class="stat-val highlight">Re(s) = 1/2</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Previous Proven Bound</span>
+        <span class="stat-label">${tPrev}</span>
         <span class="stat-val">41.6% (Bredberg 2011)</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">2026 AI Leap (Claude)</span>
-        <span class="stat-val success">67.2% on Critical Line!</span>
+        <span class="stat-label">${tAiLeap}</span>
+        <span class="stat-val success">67.2%</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Clay Millennium Prize</span>
+        <span class="stat-label">${lang === 'ja' ? 'クレイ研究所ミレニアム懸賞金' : (lang.startsWith('zh') ? '千禧年大奖难题悬赏' : 'Clay Millennium Prize')}</span>
         <span class="stat-val alert">$1,000,000 USD</span>
       </div>
     `;

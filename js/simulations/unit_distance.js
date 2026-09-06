@@ -4,6 +4,8 @@
  * preset configurations (Moser spindle, triangular lattice, 2026 AI counterexample structure).
  */
 
+import { i18n } from "../i18n/i18n.js";
+
 export class UnitDistanceSimulation {
   constructor(canvasId, statsId) {
     this.canvas = document.getElementById(canvasId);
@@ -214,16 +216,27 @@ export class UnitDistanceSimulation {
     if (!this.statsContainer) return;
     const n = this.points.length;
     const u = this.unitDistancePairs.length;
-    const theoreticalBound = n > 0 ? (n * Math.log2(n + 1)).toFixed(1) : 0;
+    const lang = i18n.getLanguage();
+
+    const tDisproven = {
+      en: "Disproven! (n^(1+ε))",
+      de: "Widerlegt! (n^(1+ε))",
+      fr: "Réfuté ! (n^(1+ε))",
+      it: "Confutato! (n^(1+ε))",
+      ja: "反例発見！(n^(1+ε))",
+      ko: "반증 완료! (n^(1+ε))",
+      "zh-Hans": "已构造反例否定！(n^(1+ε))",
+      "zh-Hant": "已構造反例否定！(n^(1+ε))"
+    }[lang] || "Disproven! (n^(1+ε))";
 
     this.statsContainer.innerHTML = `
       <div class="stat-card">
-        <span class="stat-label">Total Points ($n$)</span>
+        <span class="stat-label">${i18n.t("ud_stat_pts")} ($n$)</span>
         <span class="stat-val highlight">${n}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Unit Distance Pairs ($u(n)$)</span>
-        <span class="stat-val success">${u} pairs</span>
+        <span class="stat-label">${i18n.t("ud_stat_edges")} ($u(n)$)</span>
+        <span class="stat-val success">${u}</span>
       </div>
       <div class="stat-card">
         <span class="stat-label">Erdős Conjecture (1946)</span>
@@ -231,7 +244,7 @@ export class UnitDistanceSimulation {
       </div>
       <div class="stat-card">
         <span class="stat-label">AI Status (May 2026)</span>
-        <span class="stat-val alert">Disproven! (n^(1+ε))</span>
+        <span class="stat-val alert">${tDisproven}</span>
       </div>
     `;
   }

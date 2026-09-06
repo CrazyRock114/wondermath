@@ -1,7 +1,7 @@
 /**
  * Counterexample Hunter & Heuristic Search Simulation
  * Real-time client-side search engine testing numbers for counterexamples and cycles
- * with multi-language support.
+ * with full 8-language localization support.
  */
 
 import { i18n } from "../i18n/i18n.js";
@@ -17,6 +17,11 @@ export class CounterexampleHunter {
 
   init() {
     this.render();
+    i18n.onLanguageChange(() => {
+      if (!this.running) {
+        this.render();
+      }
+    });
   }
 
   render() {
@@ -24,14 +29,17 @@ export class CounterexampleHunter {
 
     const lang = i18n.getLanguage();
 
-    const texts = {
-      title: lang === 'ja' ? '自動反例探索エンジン' : (lang.startsWith('zh') ? '自动化反例搜寻引擎' : 'Automated Counterexample Hunter'),
-      sub: lang === 'ja' ? '数千〜数万の候補数を高速自動テストし、例外やループを検出！' : 'Run heuristic search across thousands of numbers to test if a conjecture breaks!',
-      rule_label: lang === 'ja' ? '検証対象のルール:' : (lang.startsWith('zh') ? '待检验的数学规则:' : 'Conjecture to Attack:'),
-      range_label: lang === 'ja' ? '探索範囲:' : (lang.startsWith('zh') ? '搜索数值范围:' : 'Search Range:'),
-      btn_start: lang === 'ja' ? '🚀 探索開始' : (lang.startsWith('zh') ? '🚀 启动搜索' : '🚀 Launch Search'),
-      btn_stop: lang === 'ja' ? '⏹️ 停止' : (lang.startsWith('zh') ? '⏹️ 停止' : '⏹️ Stop'),
-      ready_log: lang === 'ja' ? '待機中。ルールを選択し、探索ワーカーを開始してください。' : 'Ready. Select a rule and launch the automated search worker.'
+    const ruleOptions = [
+      { val: "collatz_std", label: `${i18n.t("collatz_std")} (3n + 1)` },
+      { val: "collatz_5n", label: `${i18n.t("collatz_5n")} [5n + 1]` },
+      { val: "collatz_3n_minus_1", label: `${i18n.t("collatz_3n_minus_1")} [3n - 1]` },
+      { val: "goldbach_odd", label: lang === 'ja' ? '奇数を2つの素数の和として表す（反例探索）' : (lang.startsWith('zh') ? '奇数拆分为两素数之和（反例搜寻）' : 'Odd Numbers as Sum of 2 Primes (Counterexample Search)') }
+    ];
+
+    const rangeLabels = {
+      100: lang === 'ja' ? '1 から 100 までの数' : (lang.startsWith('zh') ? '数字 1 到 100' : 'Numbers 1 to 100'),
+      500: lang === 'ja' ? '1 から 500 までの数' : (lang.startsWith('zh') ? '数字 1 到 500' : 'Numbers 1 to 500'),
+      2000: lang === 'ja' ? '1 から 2,000 までの数' : (lang.startsWith('zh') ? '数字 1 到 2,000' : 'Numbers 1 to 2,000')
     };
 
     this.container.innerHTML = `
@@ -39,34 +47,31 @@ export class CounterexampleHunter {
         <div class="hunter-header">
           <span class="hunter-icon">🔍</span>
           <div>
-            <h4>${texts.title}</h4>
-            <p>${texts.sub}</p>
+            <h4>${i18n.t("hunter_title")}</h4>
+            <p>${i18n.t("hunter_sub")}</p>
           </div>
         </div>
 
         <div class="hunter-controls-row">
           <div class="control-item">
-            <label>${texts.rule_label}</label>
+            <label>${i18n.t("hunter_rule_label")}</label>
             <select id="hunter-target-rule" class="custom-select">
-              <option value="collatz_std">Collatz Standard (3n + 1)</option>
-              <option value="collatz_5n">Collatz Variant (5n + 1) [Will Break!]</option>
-              <option value="collatz_3n_minus_1">Collatz Variant (3n - 1) [Known Cycles]</option>
-              <option value="goldbach_odd">Odd Numbers as Sum of 2 Primes</option>
+              ${ruleOptions.map(r => `<option value="${r.val}">${r.label}</option>`).join('')}
             </select>
           </div>
 
           <div class="control-item">
-            <label>${texts.range_label}</label>
+            <label>${i18n.t("hunter_range_label")}</label>
             <select id="hunter-limit" class="custom-select">
-              <option value="100">Numbers 1 to 100</option>
-              <option value="500" selected>Numbers 1 to 500</option>
-              <option value="2000">Numbers 1 to 2,000</option>
+              <option value="100">${rangeLabels[100]}</option>
+              <option value="500" selected>${rangeLabels[500]}</option>
+              <option value="2000">${rangeLabels[2000]}</option>
             </select>
           </div>
 
           <div class="control-item btn-align">
-            <button class="btn-primary" id="btn-start-hunt">${texts.btn_start}</button>
-            <button class="btn-secondary" id="btn-stop-hunt" disabled>${texts.btn_stop}</button>
+            <button class="btn-primary" id="btn-start-hunt">${i18n.t("hunter_btn_start")}</button>
+            <button class="btn-secondary" id="btn-stop-hunt" disabled>${i18n.t("hunter_btn_stop")}</button>
           </div>
         </div>
 
@@ -75,12 +80,12 @@ export class CounterexampleHunter {
             <div id="hunter-progress-fill" class="progress-bar-fill" style="width: 0%"></div>
           </div>
           <div class="progress-stats">
-            <span id="hunter-tested-label">Tested: 0 numbers</span>
-            <span id="hunter-anomalies-label" class="badge-neutral">0 Anomalies Found</span>
+            <span id="hunter-tested-label">${i18n.t("hunter_tested").replace("{count}", "0")}</span>
+            <span id="hunter-anomalies-label" class="badge-neutral">${i18n.t("hunter_anomalies").replace("{count}", "0")}</span>
           </div>
 
           <div class="live-hunter-log" id="hunter-log-feed">
-            <div class="log-line info">${texts.ready_log}</div>
+            <div class="log-line info">${i18n.t("hunter_ready_log")}</div>
           </div>
         </div>
       </div>
@@ -132,9 +137,9 @@ export class CounterexampleHunter {
       const anomaliesLabel = document.getElementById("hunter-anomalies-label");
 
       if (progressFill) progressFill.style.width = `${pct}%`;
-      if (testedLabel) testedLabel.innerText = `Tested: ${current} / ${limit} numbers (${pct}%)`;
+      if (testedLabel) testedLabel.innerText = `${i18n.t("hunter_tested").replace("{count}", current)} / ${limit} (${pct}%)`;
       if (anomaliesLabel) {
-        anomaliesLabel.innerText = `${anomalies} Anomalies / Cycles`;
+        anomaliesLabel.innerText = i18n.t("hunter_anomalies").replace("{count}", anomalies);
         anomaliesLabel.className = anomalies > 0 ? "badge-alert" : "badge-neutral";
       }
 

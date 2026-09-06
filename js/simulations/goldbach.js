@@ -3,6 +3,8 @@
  * Prime Balance Scale & Goldbach Comet scatter canvas.
  */
 
+import { i18n } from "../i18n/i18n.js";
+
 export class GoldbachSimulation {
   constructor(containerId, cometCanvasId, statsId) {
     this.container = document.getElementById(containerId);
@@ -71,17 +73,62 @@ export class GoldbachSimulation {
 
   render() {
     if (!this.container) return;
+    const lang = i18n.getLanguage();
     const currentPair = this.partitions[this.activePartitionIdx] || [0, 0];
     const [p1, p2] = currentPair;
+
+    const tEvenLabel = {
+      en: "Even Number ($N$):",
+      de: "Gerade Zahl ($N$):",
+      fr: "Nombre pair ($N$) :",
+      it: "Numero pari ($N$):",
+      ja: "偶数 ($N$):",
+      ko: "짝수 ($N$):",
+      "zh-Hans": "目标偶数 ($N$):",
+      "zh-Hant": "目標偶數 ($N$):"
+    }[lang] || "Even Number ($N$):";
+
+    const tQuick = {
+      en: "Quick Picks:",
+      de: "Schnellwahl:",
+      fr: "Choix rapide :",
+      it: "Scelta rapida:",
+      ja: "クイック選択:",
+      ko: "빠른 선택:",
+      "zh-Hans": "快速预设:",
+      "zh-Hant": "快速預設:"
+    }[lang] || "Quick Picks:";
+
+    const tTargetEven = {
+      en: "Target Even",
+      de: "Gerade Zielzahl",
+      fr: "Nombre pair cible",
+      it: "Pari bersaglio",
+      ja: "目標の偶数",
+      ko: "목표 짝수",
+      "zh-Hans": "目标偶数",
+      "zh-Hant": "目標偶數"
+    }[lang] || "Target Even";
+
+    const tBalanced = {
+      en: `Balanced! (${p1} + ${p2} = ${this.targetEven})`,
+      de: `Ausgeglichen! (${p1} + ${p2} = ${this.targetEven})`,
+      fr: `Équilibré ! (${p1} + ${p2} = ${this.targetEven})`,
+      it: `In equilibrio! (${p1} + ${p2} = ${this.targetEven})`,
+      ja: `釣り合いました！ (${p1} + ${p2} = ${this.targetEven})`,
+      ko: `균형 완료! (${p1} + ${p2} = ${this.targetEven})`,
+      "zh-Hans": `天平平衡！ (${p1} + ${p2} = ${this.targetEven})`,
+      "zh-Hant": `天平平衡！ (${p1} + ${p2} = ${this.targetEven})`
+    }[lang] || `Balanced! (${p1} + ${p2} = ${this.targetEven})`;
 
     this.container.innerHTML = `
       <div class="goldbach-controls">
         <div class="input-slider-group">
-          <label>Even Number ($N$): <strong id="goldbach-n-val" class="highlight-val">${this.targetEven}</strong></label>
+          <label>${tEvenLabel} <strong id="goldbach-n-val" class="highlight-val">${this.targetEven}</strong></label>
           <input type="range" id="goldbach-slider" min="4" max="200" step="2" value="${this.targetEven}">
         </div>
         <div class="quick-pick-btns">
-          <span>Quick Picks:</span>
+          <span>${tQuick}</span>
           <button class="btn-xs" data-val="10">10</button>
           <button class="btn-xs" data-val="28">28</button>
           <button class="btn-xs" data-val="100">100</button>
@@ -98,7 +145,7 @@ export class GoldbachSimulation {
           <div class="pan pan-left">
             <div class="pan-chain"></div>
             <div class="weight-plate even-plate">
-              <span class="weight-title">Target Even</span>
+              <span class="weight-title">${tTargetEven}</span>
               <span class="weight-num">${this.targetEven}</span>
             </div>
           </div>
@@ -111,7 +158,7 @@ export class GoldbachSimulation {
                 <span class="weight-plus">+</span>
                 <span class="prime-weight">${p2}</span>
               </div>
-              <span class="weight-sub">Balanced! (${p1} + ${p2} = ${this.targetEven})</span>
+              <span class="weight-sub">${tBalanced}</span>
             </div>
           </div>
         </div>
@@ -119,9 +166,9 @@ export class GoldbachSimulation {
 
       <!-- Partitions Carousel / List -->
       <div class="partition-navigator">
-        <button class="btn-sm" id="btn-prev-part" ${this.partitions.length <= 1 ? 'disabled' : ''}>◀ Prev Pair</button>
-        <span class="partition-count">Pair ${this.activePartitionIdx + 1} of ${this.partitions.length} total prime solutions</span>
-        <button class="btn-sm" id="btn-next-part" ${this.partitions.length <= 1 ? 'disabled' : ''}>Next Pair ▶</button>
+        <button class="btn-sm" id="btn-prev-part" ${this.partitions.length <= 1 ? 'disabled' : ''}>◀</button>
+        <span class="partition-count">Solution ${this.activePartitionIdx + 1} / ${this.partitions.length}</span>
+        <button class="btn-sm" id="btn-next-part" ${this.partitions.length <= 1 ? 'disabled' : ''}>▶</button>
       </div>
 
       <div class="partitions-chips">
@@ -209,22 +256,57 @@ export class GoldbachSimulation {
 
   updateStats() {
     if (!this.statsContainer) return;
+    const lang = i18n.getLanguage();
+
+    const tEvenLabel = {
+      en: "Current Even ($N$)",
+      de: "Aktuelle Zahl ($N$)",
+      fr: "Nombre pair ($N$)",
+      it: "Pari corrente ($N$)",
+      ja: "現在の偶数 ($N$)",
+      ko: "현재 짝수 ($N$)",
+      "zh-Hans": "当前检验偶数 ($N$)",
+      "zh-Hant": "當前檢驗偶數 ($N$)"
+    }[lang] || "Current Even ($N$)";
+
+    const tCombos = {
+      en: `${this.partitions.length} ways`,
+      de: `${this.partitions.length} Paare`,
+      fr: `${this.partitions.length} façons`,
+      it: `${this.partitions.length} modi`,
+      ja: `${this.partitions.length} 通りの素数ペア`,
+      ko: `${this.partitions.length}가지 소수 쌍`,
+      "zh-Hans": `${this.partitions.length} 组素数拆分`,
+      "zh-Hant": `${this.partitions.length} 組素數拆分`
+    }[lang] || `${this.partitions.length} ways`;
+
+    const tWeak = {
+      en: "Solved (2013 Helfgott)",
+      de: "Gelöst (2013 Helfgott)",
+      fr: "Résolu (Helfgott 2013)",
+      it: "Risolto (2013 Helfgott)",
+      ja: "証明解決 (2013年 ヘルフゴット)",
+      ko: "증명 해결 (2013년 헬프곳)",
+      "zh-Hans": "弱猜想已完全证明 (2013)",
+      "zh-Hant": "弱猜想已完全證明 (2013)"
+    }[lang] || "Solved (2013 Helfgott)";
+
     this.statsContainer.innerHTML = `
       <div class="stat-card">
-        <span class="stat-label">Current Even ($N$)</span>
+        <span class="stat-label">${tEvenLabel}</span>
         <span class="stat-val highlight">${this.targetEven}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Prime Combinations</span>
-        <span class="stat-val highlight">${this.partitions.length} ways</span>
+        <span class="stat-label">${lang === 'ja' ? '素数の組み合わせ' : (lang.startsWith('zh') ? '质数配对解数' : 'Prime Combinations')}</span>
+        <span class="stat-val highlight">${tCombos}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Weak Goldbach</span>
-        <span class="stat-val success">Solved (2013 Helfgott)</span>
+        <span class="stat-label">${lang === 'ja' ? '弱ゴールドバッハ予想' : (lang.startsWith('zh') ? '弱哥德巴赫猜想' : 'Weak Goldbach')}</span>
+        <span class="stat-val success">${tWeak}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Max Verified by Supercomputers</span>
-        <span class="stat-val alert">4 × 10¹⁸ (4 Quintillion)</span>
+        <span class="stat-label">${lang === 'ja' ? 'スパコン検証限界' : (lang.startsWith('zh') ? '超级计算机验证极值' : 'Verified by Computers')}</span>
+        <span class="stat-val alert">4 × 10¹⁸</span>
       </div>
     `;
   }

@@ -3,6 +3,8 @@
  * Sieve grid, twin pair locator, gap distribution histogram, and bounded gap timeline.
  */
 
+import { i18n } from "../i18n/i18n.js";
+
 export class PrimeGapsSimulation {
   constructor(containerId, statsId) {
     this.container = document.getElementById(containerId);
@@ -127,21 +129,78 @@ export class PrimeGapsSimulation {
       </div>
     `;
 
+    const lang = i18n.getLanguage();
+
+    const tUpTo120 = {
+      en: "Up to 120",
+      de: "Bis 120",
+      fr: "Jusqu'à 120",
+      it: "Fino a 120",
+      ja: "120まで",
+      ko: "120까지",
+      "zh-Hans": "范围至 120",
+      "zh-Hant": "範圍至 120"
+    }[lang] || "Up to 120";
+
+    const tUpTo240 = {
+      en: "Up to 240",
+      de: "Bis 240",
+      fr: "Jusqu'à 240",
+      it: "Fino a 240",
+      ja: "240まで",
+      ko: "240까지",
+      "zh-Hans": "范围至 240",
+      "zh-Hant": "範圍至 240"
+    }[lang] || "Up to 240";
+
+    const tPrime = {
+      en: "Prime",
+      de: "Primzahl",
+      fr: "Nombre premier",
+      it: "Numero primo",
+      ja: "素数",
+      ko: "소수",
+      "zh-Hans": "素数",
+      "zh-Hant": "質數"
+    }[lang] || "Prime";
+
+    const tTwinPrime = {
+      en: "Twin Prime (Gap = 2)",
+      de: "Primzahlzwilling (Lücke = 2)",
+      fr: "Jumeau (Écart = 2)",
+      it: "Primi gemelli (Divario = 2)",
+      ja: "双子素数 (差 = 2)",
+      ko: "쌍둥이 소수 (간격 = 2)",
+      "zh-Hans": "孪生素数 (间距 = 2)",
+      "zh-Hant": "蠻生素數 (間距 = 2)"
+    }[lang] || "Twin Prime (Gap = 2)";
+
+    const tFreqTitle = {
+      en: "Frequency of Prime Gaps ($p_{n+1} - p_n$)",
+      de: "Häufigkeit der Primzahllücken ($p_{n+1} - p_n$)",
+      fr: "Fréquence des écarts entre premiers ($p_{n+1} - p_n$)",
+      it: "Frequenza dei divari dei primi ($p_{n+1} - p_n$)",
+      ja: "素数間隔の出現頻度 ($p_{n+1} - p_n$)",
+      ko: "소수 간격 빈도 분포 ($p_{n+1} - p_n$)",
+      "zh-Hans": "相邻素数间距分布统计 ($p_{n+1} - p_n$)",
+      "zh-Hant": "相鄰素數間距分佈統計 ($p_{n+1} - p_n$)"
+    }[lang] || "Frequency of Prime Gaps ($p_{n+1} - p_n$)";
+
     this.container.innerHTML = `
       <div class="sim-controls-bar">
         <div class="btn-group">
-          <button class="btn-sm ${this.limit === 120 ? 'active' : ''}" id="btn-limit-120">Up to 120</button>
-          <button class="btn-sm ${this.limit === 240 ? 'active' : ''}" id="btn-limit-240">Up to 240</button>
+          <button class="btn-sm ${this.limit === 120 ? 'active' : ''}" id="btn-limit-120">${tUpTo120}</button>
+          <button class="btn-sm ${this.limit === 240 ? 'active' : ''}" id="btn-limit-240">${tUpTo240}</button>
         </div>
         <div class="legend-pills">
-          <span class="legend-pill prime-pill">Prime</span>
-          <span class="legend-pill twin-pill">Twin Prime (Gap = 2)</span>
+          <span class="legend-pill prime-pill">${tPrime}</span>
+          <span class="legend-pill twin-pill">${tTwinPrime}</span>
         </div>
       </div>
       ${gridHtml}
       <div class="sim-subsections">
         <div class="sim-card">
-          <h4>Frequency of Prime Gaps ($p_{n+1} - p_n$)</h4>
+          <h4>${tFreqTitle}</h4>
           ${histHtml}
         </div>
         <div class="sim-card">
@@ -157,19 +216,19 @@ export class PrimeGapsSimulation {
     if (this.statsContainer) {
       this.statsContainer.innerHTML = `
         <div class="stat-card">
-          <span class="stat-label">Total Primes Found</span>
+          <span class="stat-label">${lang === 'ja' ? '発見された素数総数' : (lang.startsWith('zh') ? '检验范围内素数总数' : 'Total Primes Found')}</span>
           <span class="stat-val highlight">${this.primes.length}</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Twin Prime Pairs</span>
+          <span class="stat-label">${lang === 'ja' ? '双子素数の組数' : (lang.startsWith('zh') ? '孪生素数对数量' : 'Twin Prime Pairs')}</span>
           <span class="stat-val highlight">${this.twinPairs.length}</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Closest Neighbors</span>
+          <span class="stat-label">${lang === 'ja' ? '最も近い隣人ペア' : (lang.startsWith('zh') ? '最具代表性连续对' : 'Closest Neighbors')}</span>
           <span class="stat-val success">(3, 5), (5, 7), (11, 13)</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Best Unconditional Gap</span>
+          <span class="stat-label">${lang === 'ja' ? '人類最良の無条件上界' : (lang.startsWith('zh') ? '当前人类已知无条件间距界' : 'Best Unconditional Gap')}</span>
           <span class="stat-val alert">≤ 246 (Maynard)</span>
         </div>
       `;

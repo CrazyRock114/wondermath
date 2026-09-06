@@ -3,6 +3,8 @@
  * Hailstone trajectory curve, peak altitude, step statistics, and cycle visualizer.
  */
 
+import { i18n } from "../i18n/i18n.js";
+
 export class CollatzSimulation {
   constructor(canvasId, statsContainerId) {
     this.canvas = document.getElementById(canvasId);
@@ -178,21 +180,21 @@ export class CollatzSimulation {
 
     this.statsContainer.innerHTML = `
       <div class="stat-card">
-        <span class="stat-label">Starting Number</span>
+        <span class="stat-label">${i18n.t("stat_start_num")}</span>
         <span class="stat-val highlight">${start.toLocaleString()}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Total Steps to Finish</span>
+        <span class="stat-label">${i18n.t("stat_steps_to_finish")}</span>
         <span class="stat-val">${steps}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Peak Altitude</span>
+        <span class="stat-label">${i18n.t("stat_peak_altitude")}</span>
         <span class="stat-val ${peak > start * 10 ? 'alert' : ''}">${peak.toLocaleString()}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Outcome</span>
+        <span class="stat-label">${i18n.t("stat_outcome")}</span>
         <span class="stat-val ${reachesOne ? 'success' : 'warning'}">
-          ${reachesOne ? '✅ Landed on 1 (4-2-1 Loop)' : (this.cycleDetected ? '🔄 Trapped in Cycle' : '🚀 Escaped!')}
+          ${reachesOne ? i18n.t("stat_landed_1") : (this.cycleDetected ? i18n.t("stat_trapped_cycle") : i18n.t("stat_escaped"))}
         </span>
       </div>
     `;

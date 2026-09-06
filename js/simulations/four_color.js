@@ -4,6 +4,8 @@
  * and graph duality inspector.
  */
 
+import { i18n } from "../i18n/i18n.js";
+
 export class FourColorSimulation {
   constructor(containerId, statsId) {
     this.container = document.getElementById(containerId);
@@ -93,11 +95,67 @@ export class FourColorSimulation {
 
     const conflictCount = this.conflicts.length;
     const isPerfect = conflictCount === 0;
+    const lang = i18n.getLanguage();
+
+    const tPalette = {
+      en: "Choose a Crayon:",
+      de: "Farbe wählen:",
+      fr: "Choisir une couleur :",
+      it: "Scegli colore:",
+      ja: "クレヨンを選択:",
+      ko: "크레용 선택:",
+      "zh-Hans": "选择画笔颜色:",
+      "zh-Hant": "選擇畫筆顏色:"
+    }[lang] || "Choose a Crayon:";
+
+    const tAuto = {
+      en: "✨ Auto-Color Validly",
+      de: "✨ Automatisch 4-färben",
+      fr: "✨ Colorier avec 4 couleurs",
+      it: "✨ Risolvi a 4 colori",
+      ja: "✨ 4色で自動塗り分け",
+      ko: "✨ 4색 자동 채색",
+      "zh-Hans": "✨ 自动四色求解",
+      "zh-Hant": "✨ 自動四色求解"
+    }[lang] || "✨ Auto-Color Validly";
+
+    const tRandom = {
+      en: "🎲 Scramble",
+      de: "🎲 Mischen",
+      fr: "🎲 Mélanger",
+      it: "🎲 Mescola",
+      ja: "🎲 ランダム配置",
+      ko: "🎲 무작위 섞기",
+      "zh-Hans": "🎲 随机填色",
+      "zh-Hant": "🎲 隨機填色"
+    }[lang] || "🎲 Scramble";
+
+    const tValidMsg = {
+      en: "🎉 <strong>Valid Map!</strong> No adjacent countries share the same crayon!",
+      de: "🎉 <strong>Gültige Karte!</strong> Keine benachbarten Regionen teilen dieselbe Farbe!",
+      fr: "🎉 <strong>Carte valide !</strong> Aucun pays voisin ne partage la même couleur !",
+      it: "🎉 <strong>Mappa valida!</strong> Nessun paese confinante condivide lo stesso colore!",
+      ja: "🎉 <strong>塗り分け成功！</strong> 隣り合うどの地域も異なる色で塗られています！",
+      ko: "🎉 <strong>유효한 지도 완성!</strong> 인접한 어떤 구역도 같은 색을 공유하지 않습니다!",
+      "zh-Hans": "🎉 <strong>四色着色成功！</strong> 任意相邻国家边界均无相同颜色！",
+      "zh-Hant": "🎉 <strong>四色著色成功！</strong> 任意相鄰國家邊界均無相同顏色！"
+    }[lang] || "🎉 <strong>Valid Map!</strong> No adjacent countries share the same crayon!";
+
+    const tConflictMsg = {
+      en: `⚠️ <strong>Conflict Alert!</strong> ${conflictCount} neighboring border${conflictCount > 1 ? 's' : ''} have the same color!`,
+      de: `⚠️ <strong>Konflikt!</strong> ${conflictCount} benachbarte Grenze(n) haben dieselbe Farbe!`,
+      fr: `⚠️ <strong>Alerte conflit !</strong> ${conflictCount} frontière(s) partagent la même couleur !`,
+      it: `⚠️ <strong>Conflitto!</strong> ${conflictCount} confine(i) hanno lo stesso colore!`,
+      ja: `⚠️ <strong>境界線の色が衝突！</strong> ${conflictCount} 箇所の境界が同じ色です！`,
+      ko: `⚠️ <strong>경계 충돌!</strong> ${conflictCount}개 경계선에서 색상이 겹칩니다!`,
+      "zh-Hans": `⚠️ <strong>边界颜色冲突！</strong> ${conflictCount} 处相邻边界颜色相同！`,
+      "zh-Hant": `⚠️ <strong>邊界顏色衝突！</strong> ${conflictCount} 處相鄰邊界顏色相同！`
+    }[lang] || `⚠️ <strong>Conflict Alert!</strong> ${conflictCount} neighboring border${conflictCount > 1 ? 's' : ''} have the same color!`;
 
     this.container.innerHTML = `
       <div class="four-color-dashboard">
         <div class="color-palette-bar">
-          <span class="palette-label">Choose a Crayon:</span>
+          <span class="palette-label">${tPalette}</span>
           <div class="crayon-buttons">
             ${this.colors.map((c, idx) => `
               <button class="crayon-btn ${this.selectedColorIdx === idx ? 'active' : ''}" 
@@ -108,8 +166,8 @@ export class FourColorSimulation {
             `).join('')}
           </div>
           <div class="map-action-btns">
-            <button class="btn-sm" id="btn-fc-solve">✨ Auto-Color Validly</button>
-            <button class="btn-sm" id="btn-fc-random">🎲 Scramble</button>
+            <button class="btn-sm" id="btn-fc-solve">${tAuto}</button>
+            <button class="btn-sm" id="btn-fc-random">${tRandom}</button>
           </div>
         </div>
 
@@ -136,10 +194,7 @@ export class FourColorSimulation {
         </div>
 
         <div class="map-feedback-bar ${isPerfect ? 'feedback-success' : 'feedback-error'}">
-          ${isPerfect ? 
-            '🎉 <strong>Valid Map!</strong> No adjacent countries share the same crayon!' : 
-            `⚠️ <strong>Conflict Alert!</strong> ${conflictCount} neighboring country border${conflictCount > 1 ? 's' : ''} have the same color! Click countries to fix.`
-          }
+          ${isPerfect ? tValidMsg : tConflictMsg}
         </div>
       </div>
     `;
@@ -165,20 +220,20 @@ export class FourColorSimulation {
     if (this.statsContainer) {
       this.statsContainer.innerHTML = `
         <div class="stat-card">
-          <span class="stat-label">Colors Used</span>
-          <span class="stat-val highlight">4 Crayons</span>
+          <span class="stat-label">${lang === 'ja' ? '使用色数' : (lang.startsWith('zh') ? '使用颜色数' : 'Colors Used')}</span>
+          <span class="stat-val highlight">4</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Border Conflicts</span>
+          <span class="stat-label">${lang === 'ja' ? '境界色の衝突数' : (lang.startsWith('zh') ? '冲突边界数' : 'Border Conflicts')}</span>
           <span class="stat-val ${conflictCount === 0 ? 'success' : 'alert'}">${conflictCount}</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Year Proved by Computer</span>
-          <span class="stat-val">1976 (Appel & Haken)</span>
+          <span class="stat-label">${lang === 'ja' ? '計算機証明の年' : (lang.startsWith('zh') ? '计算机证明年份' : 'Year Proved')}</span>
+          <span class="stat-val">1976</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Can You Force 5 Colors?</span>
-          <span class="stat-val warning">Mathematically Impossible!</span>
+          <span class="stat-label">${lang === 'ja' ? '5色必要になる地図は？' : (lang.startsWith('zh') ? '能否逼出第5种颜色？' : '5 Colors Needed?')}</span>
+          <span class="stat-val warning">${lang === 'ja' ? '数学的に存在しない！' : (lang.startsWith('zh') ? '数学已证绝不可能！' : 'Impossible!')}</span>
         </div>
       `;
     }

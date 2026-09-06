@@ -100,6 +100,7 @@ class WonderMathApp {
       const conj = this.conjectures.find(c => c.id === this.activeConjectureId);
       if (conj) {
         this.renderDetailContent(conj);
+        this.initConjectureSimulation(conj);
       }
     }
 
@@ -337,15 +338,15 @@ class WonderMathApp {
           <div class="input-slider-group">
             <label>N:</label>
             <input type="number" id="collatz-input" class="custom-input" value="27" min="1" max="100000">
-            <button class="btn-primary" id="btn-collatz-run">Launch Orbit</button>
-            <button class="btn-secondary" id="btn-collatz-rand">🎲 Random</button>
+            <button class="btn-primary" id="btn-collatz-run">${i18n.t("sim_orbit_launch")}</button>
+            <button class="btn-secondary" id="btn-collatz-rand">${i18n.t("sim_random")}</button>
           </div>
           <div class="input-slider-group">
-            <label>Rule:</label>
+            <label>${i18n.t("sim_rule")}</label>
             <select id="collatz-rule-select" class="custom-select">
-              <option value="3,1" selected>Standard 3n + 1</option>
-              <option value="5,1">Variant 5n + 1 (Divergent!)</option>
-              <option value="3,-1">Variant 3n - 1 (Multiple Cycles!)</option>
+              <option value="3,1" selected>${i18n.t("collatz_std")}</option>
+              <option value="5,1">${i18n.t("collatz_5n")}</option>
+              <option value="3,-1">${i18n.t("collatz_3n_minus_1")}</option>
             </select>
           </div>
         </div>
@@ -359,9 +360,9 @@ class WonderMathApp {
       return `
         <div id="goldbach-sim-container"></div>
         <div style="margin-top: 1.5rem;">
-          <h4 style="margin-bottom: 0.5rem; font-size: 0.95rem; color: var(--accent-cyan);">The Goldbach Comet (N = 4 to 1,000)</h4>
+          <h4 style="margin-bottom: 0.5rem; font-size: 0.95rem; color: var(--accent-cyan);">${i18n.t("goldbach_comet_title")}</h4>
           <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-            Each dot represents an even number. The vertical height shows the number of different prime pairs that sum to it!
+            ${i18n.t("goldbach_comet_desc")}
           </p>
           <div class="sim-canvas-container" style="height: 250px;">
             <canvas id="goldbach-comet-canvas"></canvas>
@@ -374,13 +375,13 @@ class WonderMathApp {
       return `
         <div class="sim-controls-bar">
           <div class="input-slider-group">
-            <span>Points:</span>
-            <button class="btn-sm" id="btn-ud-triangle">🔺 Triangle (3 pts)</button>
-            <button class="btn-sm" id="btn-ud-rhombus">💎 Rhombus (4 pts)</button>
-            <button class="btn-sm" id="btn-ud-moser">🕸️ Moser Spindle (7 pts)</button>
-            <button class="btn-sm" id="btn-ud-ai">🤖 2026 AI Tower</button>
+            <span>${i18n.t("ud_stat_pts")}:</span>
+            <button class="btn-sm" id="btn-ud-triangle">${i18n.t("btn_ud_triangle")}</button>
+            <button class="btn-sm" id="btn-ud-rhombus">${i18n.t("btn_ud_rhombus")}</button>
+            <button class="btn-sm" id="btn-ud-moser">${i18n.t("btn_ud_moser")}</button>
+            <button class="btn-sm" id="btn-ud-ai">${i18n.t("btn_ud_ai")}</button>
           </div>
-          <button class="btn-secondary" id="btn-ud-clear">Clear Board</button>
+          <button class="btn-secondary" id="btn-ud-clear">${i18n.t("btn_clear_board")}</button>
         </div>
         <div class="sim-canvas-container">
           <canvas id="unit-distance-canvas"></canvas>
@@ -396,14 +397,14 @@ class WonderMathApp {
       return `
         <div class="sim-controls-bar">
           <div class="input-slider-group">
-            <label>Warp: <strong id="jacobian-warp-val" class="highlight-val">0.5</strong></label>
+            <label>${i18n.t("jacobian_warp_label")} <strong id="jacobian-warp-val" class="highlight-val">0.5</strong></label>
             <input type="range" id="jacobian-warp-slider" min="0" max="1.5" step="0.05" value="0.5">
           </div>
           <div class="input-slider-group">
-            <label>Transformation Type:</label>
+            <label>${i18n.t("jacobian_type_label")}</label>
             <select id="jacobian-mode-select" class="custom-select">
-              <option value="standard_shear" selected>2D Triangular Shear (det J = 1)</option>
-              <option value="claude_3d_slice">Claude 2026 3D Non-Invertible Slice (det J = -2)</option>
+              <option value="standard_shear" selected>${i18n.t("jacobian_2d_shear")}</option>
+              <option value="claude_3d_slice">${i18n.t("jacobian_3d_claude")}</option>
             </select>
           </div>
         </div>
