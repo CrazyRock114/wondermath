@@ -28,6 +28,8 @@ export class FourColorSimulation {
     this.conflicts = [];
   }
 
+  destroy() {}
+
   init() {
     this.checkConflicts();
     this.render();

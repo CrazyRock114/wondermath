@@ -19,14 +19,25 @@ export class CollatzSimulation {
     this.isPlaying = false;
     this.speedDelay = 80; // ms per step
 
+    this._onResize = () => this.resizeCanvas();
     this.resizeCanvas();
-    window.addEventListener("resize", () => this.resizeCanvas());
+    window.addEventListener("resize", this._onResize);
+  }
+
+  destroy() {
+    this.pause();
+    if (this._onResize) {
+      window.removeEventListener("resize", this._onResize);
+    }
   }
 
   resizeCanvas() {
     if (!this.canvas) return;
-    const rect = this.canvas.parentElement.getBoundingClientRect();
-    this.canvas.width = Math.max(320, rect.width - 24);
+    const parent = this.canvas.parentElement;
+    const rect = (parent && typeof parent.getBoundingClientRect === "function")
+      ? parent.getBoundingClientRect()
+      : (typeof this.canvas.getBoundingClientRect === "function" ? this.canvas.getBoundingClientRect() : { width: 600, height: 360 });
+    this.canvas.width = Math.max(320, (rect.width || 600) - 24);
     this.canvas.height = 360;
     if (this.trajectory.length > 0) {
       this.drawTrajectory(this.currentStep || this.trajectory.length);

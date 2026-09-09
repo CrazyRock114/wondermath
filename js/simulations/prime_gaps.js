@@ -16,6 +16,8 @@ export class PrimeGapsSimulation {
     this.activeFilter = "twin"; // 'all', 'twin', 'cousin', 'sexy'
   }
 
+  destroy() {}
+
   init() {
     this.computePrimes(this.limit);
     this.render();

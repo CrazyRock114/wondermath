@@ -7,16 +7,75 @@
 import { i18n } from "../i18n/i18n.js";
 
 export class LessonExporter {
-  static exportLesson(conjecture, gradeLevel = "investigators") {
+  constructor(conjecture) {
+    this.conjecture = conjecture;
+  }
+
+  toHTML(gradeLevel = "investigators") {
+    return LessonExporter.generateLessonHTML(this.conjecture, gradeLevel);
+  }
+
+  toMarkdown(gradeLevel = "investigators") {
+    return LessonExporter.generateLessonMarkdown(this.conjecture, gradeLevel);
+  }
+
+  static generateLessonMarkdown(conjecture, gradeLevel = "investigators") {
     const lang = i18n.getLanguage();
-    const gradeData = conjecture.grades[gradeLevel] || conjecture.grades.investigators;
+    const gradeData = (conjecture.grades && conjecture.grades[gradeLevel]) || (conjecture.grades && conjecture.grades.investigators) || {};
     const gradeTitle = {
       explorers: i18n.t("grade_explorers"),
       investigators: i18n.t("grade_investigators"),
       pioneers: i18n.t("grade_pioneers")
     }[gradeLevel] || gradeLevel;
 
-    const html = `<!DOCTYPE html>
+    return `# ${conjecture.name} (${gradeTitle})
+**${conjecture.subtitle || ''}**
+*${conjecture.field || ''} • Status: ${conjecture.statusBadge || ''}*
+
+---
+
+## 🎯 Learning Target & Core Riddle
+> ${gradeData.tagline || ''}
+
+### Intuitive Analogy
+${gradeData.analogy || ''}
+
+---
+
+## 📋 Investigation Rules & Steps
+${(gradeData.rules || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
+
+---
+
+## 🔍 The Unsolved Mystery / Key Theorem
+${gradeData.mystery || ''}
+
+💡 **Fun Fact**: ${gradeData.funFact || ''}
+
+---
+
+## 📜 Historical Progression
+${(conjecture.history || []).map(h => `- **${h.year}** (${h.author}): ${h.note}`).join('\n')}
+
+---
+
+## 🤖 Lean 4 Formalization
+\`\`\`lean
+${conjecture.leanCode || '-- Formal proof code'}
+\`\`\`
+`;
+  }
+
+  static generateLessonHTML(conjecture, gradeLevel = "investigators") {
+    const lang = i18n.getLanguage();
+    const gradeData = (conjecture.grades && conjecture.grades[gradeLevel]) || (conjecture.grades && conjecture.grades.investigators) || {};
+    const gradeTitle = {
+      explorers: i18n.t("grade_explorers"),
+      investigators: i18n.t("grade_investigators"),
+      pioneers: i18n.t("grade_pioneers")
+    }[gradeLevel] || gradeLevel;
+
+    return `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
   <meta charset="UTF-8">
@@ -335,7 +394,14 @@ export class LessonExporter {
   </script>
 </body>
 </html>`;
+  }
 
+  static exportLesson(conjecture, gradeLevel = "investigators") {
+    const lang = i18n.getLanguage();
+    const html = LessonExporter.generateLessonHTML(conjecture, gradeLevel);
+    if (typeof Blob === "undefined" || typeof URL === "undefined" || typeof URL.createObjectURL !== "function") {
+      return html;
+    }
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -345,5 +411,6 @@ export class LessonExporter {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    return html;
   }
 }

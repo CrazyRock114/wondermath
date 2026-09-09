@@ -152,6 +152,10 @@ class WonderMathApp {
     if (this.activeConjectureId && this.currentView === "detail") {
       const conj = this.conjectures.find(c => c.id === this.activeConjectureId);
       if (conj) {
+        if (this.activeSimulation && typeof this.activeSimulation.destroy === "function") {
+          this.activeSimulation.destroy();
+        }
+        this.activeSimulation = null;
         this.renderDetailContent(conj);
         this.initConjectureSimulation(conj);
       }
@@ -159,6 +163,13 @@ class WonderMathApp {
   }
 
   switchView(viewId) {
+    if (viewId !== "detail" && this.activeSimulation) {
+      if (typeof this.activeSimulation.destroy === "function") {
+        this.activeSimulation.destroy();
+      }
+      this.activeSimulation = null;
+    }
+
     this.currentView = viewId;
     window.location.hash = viewId;
 
@@ -237,8 +248,14 @@ class WonderMathApp {
           (h.author && h.author.toLowerCase().includes(q)) || 
           (h.note && h.note.toLowerCase().includes(q))
         );
-        const taglineMatch = c.grades && c.grades[this.currentGrade] && c.grades[this.currentGrade].tagline && c.grades[this.currentGrade].tagline.toLowerCase().includes(q);
-        return nameMatch || subMatch || fieldMatch || badgeMatch || idMatch || histMatch || taglineMatch;
+        const curGrade = c.grades && (c.grades[this.currentGrade] || c.grades.explorers || c.grades.investigators || c.grades.pioneers);
+        const gradeMatch = curGrade && (
+          (curGrade.tagline && curGrade.tagline.toLowerCase().includes(q)) ||
+          (curGrade.analogy && curGrade.analogy.toLowerCase().includes(q)) ||
+          (curGrade.mystery && curGrade.mystery.toLowerCase().includes(q)) ||
+          (curGrade.funFact && curGrade.funFact.toLowerCase().includes(q))
+        );
+        return nameMatch || subMatch || fieldMatch || badgeMatch || idMatch || histMatch || gradeMatch;
       });
     }
 

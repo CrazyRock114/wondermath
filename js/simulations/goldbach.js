@@ -19,6 +19,8 @@ export class GoldbachSimulation {
     this.primeSet = new Set(this.primes);
   }
 
+  destroy() {}
+
   sieve(limit) {
     const isP = new Uint8Array(limit + 1).fill(1);
     isP[0] = isP[1] = 0;

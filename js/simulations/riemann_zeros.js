@@ -24,10 +24,17 @@ export class RiemannZerosSimulation {
     this.resizeCanvas();
   }
 
+  destroy() {
+    this.stop();
+  }
+
   resizeCanvas() {
     if (!this.canvas) return;
-    const rect = this.canvas.parentElement.getBoundingClientRect();
-    this.canvas.width = Math.max(340, rect.width - 24);
+    const parent = this.canvas.parentElement;
+    const rect = (parent && typeof parent.getBoundingClientRect === "function")
+      ? parent.getBoundingClientRect()
+      : (typeof this.canvas.getBoundingClientRect === "function" ? this.canvas.getBoundingClientRect() : { width: 600, height: 360 });
+    this.canvas.width = Math.max(340, (rect.width || 600) - 24);
     this.canvas.height = 360;
   }
 
