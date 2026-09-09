@@ -82,6 +82,31 @@
         </p>
       </div>
 
+      <!-- Search & Category Filters -->
+      <div class="gallery-controls">
+        <div class="search-box-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="conjecture-search-input" class="search-input" placeholder="Search 100 conjectures, mathematicians, theorems..." autocomplete="off" spellcheck="false" data-i18n-placeholder="search_placeholder">
+          <button id="search-clear-btn" class="search-clear-btn" style="display: none;" title="Clear search">✕</button>
+        </div>
+
+        <div class="filter-pills-row" id="category-filter-pills" role="tablist" aria-label="Conjecture Categories">
+          <button class="filter-pill active" data-filter="all"><span class="filter-icon">🌐</span> <span data-i18n="filter_all">All</span> <span class="pill-badge" id="badge-count-all">100</span></button>
+          <button class="filter-pill" data-filter="number-theory"><span class="filter-icon">🔢</span> <span data-i18n="filter_number_theory">Number Theory</span> <span class="pill-badge">30</span></button>
+          <button class="filter-pill" data-filter="geometry"><span class="filter-icon">📐</span> <span data-i18n="filter_geometry">Geometry & Topology</span> <span class="pill-badge">20</span></button>
+          <button class="filter-pill" data-filter="graph-theory"><span class="filter-icon">🕸️</span> <span data-i18n="filter_graph_theory">Graph Theory</span> <span class="pill-badge">18</span></button>
+          <button class="filter-pill" data-filter="algebra-analysis"><span class="filter-icon">📈</span> <span data-i18n="filter_algebra_analysis">Algebra & Analysis</span> <span class="pill-badge">16</span></button>
+          <button class="filter-pill" data-filter="computer-science"><span class="filter-icon">💻</span> <span data-i18n="filter_computer_science">Computer Science</span> <span class="pill-badge">10</span></button>
+          <button class="filter-pill" data-filter="physics"><span class="filter-icon">⚛️</span> <span data-i18n="filter_physics">Physics & Relativity</span> <span class="pill-badge">6</span></button>
+          <button class="filter-pill" data-filter="millennium"><span class="filter-icon">🏆</span> <span data-i18n="filter_millennium">Millennium ($1M)</span> <span class="pill-badge">7</span></button>
+          <button class="filter-pill" data-filter="ai-frontier"><span class="filter-icon">🤖</span> <span data-i18n="filter_ai_frontier">AI Frontiers</span> <span class="pill-badge">12</span></button>
+        </div>
+
+        <div class="results-count-bar">
+          <span id="results-count-text" class="results-count-text">Showing 100 of 100 conjectures</span>
+        </div>
+      </div>
+
       <!-- Conjectures Grid -->
       <div class="conjectures-grid" id="conjectures-grid-container">
         <!-- Rendered dynamically by app.js -->

@@ -18,6 +18,7 @@ import { RiemannZerosSimulation } from "./simulations/riemann_zeros.js";
 import { JacobianGridSimulation } from "./simulations/jacobian_grid.js";
 import { EllipticCurveSimulation } from "./simulations/elliptic_curve.js";
 import { LessonExporter } from "./export/lesson_exporter.js";
+import { UniversalConjectureLab } from "./simulations/universal_lab.js";
 
 // Import AI Lab
 import { AIConjectureExplorer } from "./ai_lab/explorer.js";
@@ -30,6 +31,8 @@ class WonderMathApp {
     this.currentView = "gallery";
     this.activeConjectureId = null;
     this.activeSimulation = null;
+    this.searchQuery = "";
+    this.activeCategoryFilter = "all";
 
     // AI Lab singletons
     this.aiExplorer = null;
@@ -45,6 +48,7 @@ class WonderMathApp {
     this.setupLanguageSelector();
     this.setupNavigation();
     this.setupGradeSwitcher();
+    this.setupGalleryControls();
 
     // Initial DOM translations
     i18n.applyDOMTranslations();
@@ -172,17 +176,122 @@ class WonderMathApp {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  setupGalleryControls() {
+    const searchInput = document.getElementById("conjecture-search-input");
+    const clearBtn = document.getElementById("search-clear-btn");
+    const filterPills = document.getElementById("category-filter-pills");
+
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        this.searchQuery = e.target.value;
+        if (clearBtn) {
+          clearBtn.style.display = this.searchQuery ? "flex" : "none";
+        }
+        this.renderGallery();
+      });
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        if (searchInput) searchInput.value = "";
+        this.searchQuery = "";
+        clearBtn.style.display = "none";
+        this.renderGallery();
+      });
+    }
+
+    if (filterPills) {
+      filterPills.querySelectorAll(".filter-pill").forEach(pill => {
+        pill.addEventListener("click", () => {
+          filterPills.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
+          pill.classList.add("active");
+          this.activeCategoryFilter = pill.getAttribute("data-filter") || "all";
+          this.renderGallery();
+        });
+      });
+    }
+  }
+
+  getFilteredConjectures() {
+    let list = this.conjectures;
+
+    if (this.activeCategoryFilter !== "all") {
+      if (this.activeCategoryFilter === "millennium") {
+        list = list.filter(c => c.isMillennium);
+      } else if (this.activeCategoryFilter === "ai-frontier") {
+        list = list.filter(c => c.isAIFrontier);
+      } else {
+        list = list.filter(c => c.category === this.activeCategoryFilter || c.domain === this.activeCategoryFilter);
+      }
+    }
+
+    if (this.searchQuery && this.searchQuery.trim()) {
+      const q = this.searchQuery.toLowerCase().trim();
+      list = list.filter(c => {
+        const nameMatch = c.name && c.name.toLowerCase().includes(q);
+        const subMatch = c.subtitle && c.subtitle.toLowerCase().includes(q);
+        const fieldMatch = c.field && c.field.toLowerCase().includes(q);
+        const badgeMatch = c.statusBadge && c.statusBadge.toLowerCase().includes(q);
+        const idMatch = c.id && c.id.toLowerCase().includes(q);
+        const histMatch = c.history && c.history.some(h => 
+          (h.author && h.author.toLowerCase().includes(q)) || 
+          (h.note && h.note.toLowerCase().includes(q))
+        );
+        const taglineMatch = c.grades && c.grades[this.currentGrade] && c.grades[this.currentGrade].tagline && c.grades[this.currentGrade].tagline.toLowerCase().includes(q);
+        return nameMatch || subMatch || fieldMatch || badgeMatch || idMatch || histMatch || taglineMatch;
+      });
+    }
+
+    return list;
+  }
+
   renderGallery() {
     const container = document.getElementById("conjectures-grid-container");
+    const countText = document.getElementById("results-count-text");
     if (!container) return;
 
-    container.innerHTML = this.conjectures.map(c => {
-      const gradeData = c.grades[this.currentGrade];
+    const filtered = this.getFilteredConjectures();
+
+    if (countText) {
+      const tpl = i18n.t("results_showing", "Showing {count} of {total} conjectures");
+      countText.textContent = tpl.replace("{count}", filtered.length).replace("{total}", this.conjectures.length);
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="conjecture-empty-state">
+          <span style="font-size: 3rem;">🔍</span>
+          <h4>${i18n.t("no_results_found", "No conjectures match your search or filter.")}</h4>
+          <p>${i18n.t("hero_sub_gallery")}</p>
+          <button class="btn-primary" id="btn-empty-clear-filters">${i18n.t("btn_clear_filters", "Clear Filters")}</button>
+        </div>
+      `;
+      document.getElementById("btn-empty-clear-filters")?.addEventListener("click", () => {
+        const searchInput = document.getElementById("conjecture-search-input");
+        const clearBtn = document.getElementById("search-clear-btn");
+        if (searchInput) searchInput.value = "";
+        if (clearBtn) clearBtn.style.display = "none";
+        this.searchQuery = "";
+        this.activeCategoryFilter = "all";
+        const filterPills = document.getElementById("category-filter-pills");
+        if (filterPills) {
+          filterPills.querySelectorAll(".filter-pill").forEach(p => p.classList.remove("active"));
+          filterPills.querySelector('[data-filter="all"]')?.classList.add("active");
+        }
+        this.renderGallery();
+      });
+      return;
+    }
+
+    container.innerHTML = filtered.map(c => {
+      const gradeData = c.grades[this.currentGrade] || c.grades.explorers;
       let badgeClass = "badge-open";
-      if (c.statusBadge.includes("SOLVED") || c.statusBadge.includes("反例") || c.statusBadge.includes("WIDERLEGT")) badgeClass = "badge-ai";
-      else if (c.statusBadge.includes("FORMALIZED") || c.statusBadge.includes("形式化")) badgeClass = "badge-formalized";
-      else if (c.statusBadge.includes("PROVEN") || c.statusBadge.includes("証明済み") || c.statusBadge.includes("已证明")) badgeClass = "badge-proven";
-      else if (c.statusBadge.includes("ACTIVE") || c.statusBadge.includes("FRONTIER") || c.statusBadge.includes("前沿") || c.statusBadge.includes("最前線")) badgeClass = "badge-ai";
+      const sb = (c.statusBadge || "").toUpperCase();
+      if (sb.includes("SOLVED") || sb.includes("BREAKTHROUGH") || sb.includes("SENSATION") || c.statusBadge.includes("反例") || c.statusBadge.includes("WIDERLEGT") || c.statusBadge.includes("破解")) badgeClass = "badge-ai";
+      else if (sb.includes("FORMALIZED") || c.statusBadge.includes("形式化")) badgeClass = "badge-formalized";
+      else if (sb.includes("PROVEN") || sb.includes("PROVED") || c.statusBadge.includes("証明済み") || c.statusBadge.includes("已证明") || c.statusBadge.includes("定理")) badgeClass = "badge-proven";
+      else if (sb.includes("MILLENNIUM") || c.statusBadge.includes("千禧")) badgeClass = "badge-formalized";
+      else if (sb.includes("ACTIVE") || sb.includes("FRONTIER") || c.statusBadge.includes("前沿") || c.statusBadge.includes("最前線")) badgeClass = "badge-ai";
 
       return `
         <article class="conjecture-card animate-fade-in" data-id="${c.id}">
@@ -194,7 +303,7 @@ class WonderMathApp {
           <div class="card-subtitle">${c.subtitle}</div>
           <p class="card-tagline">${gradeData.tagline}</p>
           <div class="card-footer-meta">
-            <span>${c.field.split('&')[0]}</span>
+            <span>${(c.field || "").split('&')[0]}</span>
             <span class="card-cta">${i18n.t("btn_explore")}</span>
           </div>
         </article>
@@ -210,6 +319,11 @@ class WonderMathApp {
   }
 
   openConjecture(conjId) {
+    if (this.activeSimulation && typeof this.activeSimulation.destroy === "function") {
+      this.activeSimulation.destroy();
+    }
+    this.activeSimulation = null;
+
     this.activeConjectureId = conjId;
     const conj = this.conjectures.find(c => c.id === conjId);
     if (!conj) return;
@@ -533,7 +647,7 @@ class WonderMathApp {
         </div>
       `;
     }
-    return `<p>Simulation loading...</p>`;
+    return `<div id="universal-lab-mount"></div>`;
   }
 
   initConjectureSimulation(conj) {
@@ -645,6 +759,9 @@ class WonderMathApp {
       document.getElementById("jacobian-mode-select")?.addEventListener("change", (e) => {
         sim.setMode(e.target.value);
       });
+    } else {
+      const sim = new UniversalConjectureLab("sim-mount-point", "sim-stats-container", conj);
+      this.activeSimulation = sim;
     }
   }
 
