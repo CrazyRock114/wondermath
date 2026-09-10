@@ -6,6 +6,7 @@
 
 import { getLocalizedConjectures } from "./data/conjectures.js";
 import { getLocalizedAIBreakthroughs, getBreakthroughById } from "./data/ai_breakthroughs.js";
+import { getConcreteWalkthroughHtml, getTierChallenges, getBreakthroughChallenges } from "./data/concrete_walkthroughs.js";
 import { i18n } from "./i18n/i18n.js";
 
 // Import Simulations
@@ -28,7 +29,7 @@ import { CounterexampleHunter } from "./ai_lab/counterexample_sim.js";
 
 export class WonderMathApp {
   constructor() {
-    this.currentGrade = "explorers"; // 'explorers', 'investigators', 'pioneers'
+    this.currentGrade = "all"; // 'all', 'explorers', 'investigators', 'pioneers'
     this.currentView = "gallery";
     this.activeConjectureId = null;
     this.activeBreakthroughId = null;
@@ -152,25 +153,46 @@ export class WonderMathApp {
       b.classList.toggle("active", b.getAttribute("data-grade") === grade);
     });
 
-    this.renderGallery();
-    if (this.activeConjectureId && this.currentView === "detail") {
-      const conj = this.conjectures.find(c => c.id === this.activeConjectureId);
-      if (conj) {
-        if (this.activeSimulation && typeof this.activeSimulation.destroy === "function") {
-          this.activeSimulation.destroy();
+    if (this.currentView === "gallery") {
+      this.renderGallery();
+      return;
+    }
+
+    // In detail or breakthrough views, smoothly scroll to and spotlight the target tier
+    const targetTierId = grade === "explorers" ? "tier-gr35"
+      : grade === "investigators" ? "tier-gr68"
+      : grade === "pioneers" ? "tier-gr912"
+      : "zone-principles";
+
+    const heroFocus = document.querySelector(".tier-focus-text");
+    if (heroFocus) {
+      if (this.activeConjectureId) {
+        const conj = this.conjectures.find(c => c.id === this.activeConjectureId);
+        if (conj) {
+          const t = grade === "all" ? (conj.grades.investigators?.tagline || conj.grades.explorers?.tagline || conj.subtitle) : conj.grades[grade]?.tagline;
+          if (t) heroFocus.textContent = "🎯 " + t;
         }
-        this.activeSimulation = null;
-        this.renderDetailContent(conj);
-        this.initConjectureSimulation(conj);
+      } else if (this.activeBreakthroughId) {
+        const milestone = getBreakthroughById(this.activeBreakthroughId, i18n.getLanguage());
+        if (milestone) {
+          const t = grade === "all" ? (milestone.grades?.investigators?.tagline || milestone.grades?.explorers?.tagline || milestone.subtitle) : milestone.grades?.[grade]?.tagline;
+          if (t) heroFocus.textContent = "🎯 " + t;
+        }
       }
-    } else if (this.activeBreakthroughId && this.currentView === "breakthrough-detail") {
-      const milestone = getBreakthroughById(this.activeBreakthroughId, i18n.getLanguage());
-      if (milestone) {
-        if (this.activeSimulation && typeof this.activeSimulation.destroy === "function") {
-          this.activeSimulation.destroy();
-        }
-        this.activeSimulation = null;
-        this.renderBreakthroughDetail(milestone);
+    }
+
+    const targetEl = document.getElementById(targetTierId);
+    if (targetEl) {
+      if (typeof targetEl.scrollIntoView === "function") {
+        targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      if (targetEl.classList) {
+        targetEl.classList.remove("tier-spotlight");
+        void targetEl.offsetWidth; // force DOM reflow to re-trigger pulse
+        targetEl.classList.add("tier-spotlight");
+        setTimeout(() => {
+          targetEl.classList.remove("tier-spotlight");
+        }, 1600);
       }
     }
   }
@@ -317,7 +339,9 @@ export class WonderMathApp {
     }
 
     container.innerHTML = filtered.map(c => {
-      const gradeData = c.grades[this.currentGrade] || c.grades.explorers;
+      const gradeData = (this.currentGrade === "all" || !c.grades[this.currentGrade])
+        ? (c.grades.investigators || c.grades.explorers || c.grades.pioneers)
+        : c.grades[this.currentGrade];
       let badgeClass = "badge-open";
       const sb = (c.statusBadge || "").toUpperCase();
       if (sb.includes("SOLVED") || sb.includes("BREAKTHROUGH") || sb.includes("SENSATION") || c.statusBadge.includes("反例") || c.statusBadge.includes("WIDERLEGT") || c.statusBadge.includes("破解")) badgeClass = "badge-ai";
@@ -370,20 +394,36 @@ export class WonderMathApp {
     const container = document.getElementById("conjecture-detail-content");
     if (!container) return;
 
-    const gradeData = conj.grades[this.currentGrade];
+    const lang = i18n.getLanguage();
+    const exp = (conj.grades && conj.grades.explorers) || {};
+    const inv = (conj.grades && conj.grades.investigators) || {};
+    const pio = (conj.grades && conj.grades.pioneers) || {};
+    const challenges = getTierChallenges(conj.id, lang);
+    const concreteWalkthroughHtml = getConcreteWalkthroughHtml(conj, lang);
 
     let badgeClass = "badge-open";
     if (conj.statusBadge.includes("SOLVED") || conj.statusBadge.includes("反例") || conj.statusBadge.includes("WIDERLEGT")) badgeClass = "badge-ai";
     else if (conj.statusBadge.includes("FORMALIZED") || conj.statusBadge.includes("形式化")) badgeClass = "badge-formalized";
     else if (conj.statusBadge.includes("PROVEN") || conj.statusBadge.includes("証明済み") || conj.statusBadge.includes("已证明")) badgeClass = "badge-proven";
 
-    const gradeName = i18n.t(`grade_${this.currentGrade}`);
-
     container.innerHTML = `
       <section class="detail-hero animate-fade-in">
-        <div class="grade-tier-indicator grade-${this.currentGrade}">
-          <span class="tier-pill">${gradeName}</span>
-          <span class="tier-focus-text">🎯 ${gradeData.tagline}</span>
+        <div class="grade-tier-indicator grade-all" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="tier-pill">🌟 ${i18n.t("grade_all")}</span>
+            <span class="tier-focus-text">🎯 ${inv.tagline || exp.tagline || conj.subtitle}</span>
+          </div>
+          <div class="tier-nav-shortcuts" style="display: flex; gap: 0.4rem; align-items: center;">
+            <button class="tier-jump-btn" data-target="tier-gr35" style="background: none; border: none; padding: 0; cursor: pointer;">
+              <span class="level-tag tag-gr35">🎒 ${i18n.t("tag_gr35")}</span>
+            </button>
+            <button class="tier-jump-btn" data-target="tier-gr68" style="background: none; border: none; padding: 0; cursor: pointer;">
+              <span class="level-tag tag-gr68">🔬 ${i18n.t("tag_gr68")}</span>
+            </button>
+            <button class="tier-jump-btn" data-target="tier-gr912" style="background: none; border: none; padding: 0; cursor: pointer;">
+              <span class="level-tag tag-gr912">🚀 ${i18n.t("tag_gr912")}</span>
+            </button>
+          </div>
         </div>
 
         <div class="detail-header-row">
@@ -402,7 +442,7 @@ export class WonderMathApp {
         </div>
       </section>
 
-      <!-- 4-Zone Quick Jump Navigation (from mathexperiment & edulab) -->
+      <!-- 4-Zone Quick Jump Navigation -->
       <nav class="zone-nav-bar" aria-label="4-Zone Navigation">
         <button class="zone-nav-pill active" data-target="zone-principles">${i18n.t("nav_zone_1")}</button>
         <button class="zone-nav-pill" data-target="zone-history">${i18n.t("nav_zone_2")}</button>
@@ -410,7 +450,7 @@ export class WonderMathApp {
         <button class="zone-nav-pill" data-target="zone-extension">${i18n.t("nav_zone_4")}</button>
       </nav>
 
-      <!-- ZONE ①: Principles & Formulations -->
+      <!-- ZONE ①: Principles & Formulations (全阶梯贯通认知) -->
       <section class="zone-card animate-fade-in" id="zone-principles">
         <div class="zone-header-row">
           <div class="zone-title-wrap">
@@ -422,24 +462,113 @@ export class WonderMathApp {
           </div>
         </div>
 
-        <div class="detail-analogy-box" style="margin-bottom: 1.5rem;">
-          <strong>💡 ${i18n.t("concept_overview_label")} (${gradeName})</strong>
-          <p style="margin-top: 0.35rem;">${gradeData.analogy}</p>
+        <!-- Tier 1: Gr 3–5 Foundations -->
+        <div class="tier-section" id="tier-gr35">
+          <div class="tier-section-header">
+            <h4 class="tier-section-title">
+              <span class="tier-icon">🎒</span>
+              <span>${i18n.t("tier_foundations")}</span>
+              <span class="level-tag tag-gr35">${i18n.t("tag_gr35")}</span>
+            </h4>
+          </div>
+          <div class="detail-analogy-box" style="margin-bottom: 1rem;">
+            <strong style="color: #38bdf8;">💡 ${exp.tagline || i18n.t("concept_overview_label")}</strong>
+            <p style="margin-top: 0.35rem; line-height: 1.6;">${exp.analogy || ""}</p>
+          </div>
+          ${exp.rules && exp.rules.length ? `
+            <h5 style="margin: 0.75rem 0 0.5rem; color: var(--accent-cyan); font-size: 0.95rem; font-weight: 600;">
+              📋 ${i18n.t("rules_title")}
+            </h5>
+            <ul class="english-points" style="margin-bottom: 1rem;">
+              ${exp.rules.map(r => `<li>${r}</li>`).join('')}
+            </ul>
+          ` : ''}
         </div>
 
-        <h4 style="margin-bottom: 0.75rem; color: var(--accent-cyan); font-size: 1.05rem;">${i18n.t("rules_title")} (${gradeName})</h4>
-        <ul class="english-points" style="margin-bottom: 1.5rem;">
-          ${gradeData.rules.map(r => `<li>${r}</li>`).join('')}
-        </ul>
+        <!-- Concrete Calculation Walkthrough (具象推演与真实数字手算) -->
+        ${concreteWalkthroughHtml}
 
-        <h4 style="margin-bottom: 0.75rem; color: var(--accent-rose); font-size: 1.05rem;">${i18n.t("mystery_title")} (${gradeName})</h4>
-        <p style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
-          ${gradeData.mystery}
-        </p>
+        <!-- Tier 2: Gr 6–8 Mechanics & Invariants -->
+        <div class="tier-section" id="tier-gr68">
+          <div class="tier-section-header">
+            <h4 class="tier-section-title">
+              <span class="tier-icon">🔬</span>
+              <span>${i18n.t("tier_investigation")}</span>
+              <span class="level-tag tag-gr68">${i18n.t("tag_gr68")}</span>
+            </h4>
+          </div>
+          <div class="detail-analogy-box" style="margin-bottom: 1rem; border-left-color: var(--accent-purple);">
+            <strong style="color: #c084fc;">⚙️ ${inv.tagline || i18n.t("tier_investigation")}</strong>
+            <p style="margin-top: 0.35rem; line-height: 1.6;">${inv.analogy || ""}</p>
+          </div>
+          ${inv.rules && inv.rules.length ? `
+            <h5 style="margin: 0.75rem 0 0.5rem; color: #c084fc; font-size: 0.95rem; font-weight: 600;">
+              ⚖️ ${i18n.t("rules_title")}
+            </h5>
+            <ul class="english-points" style="margin-bottom: 1rem;">
+              ${inv.rules.map(r => `<li>${r}</li>`).join('')}
+            </ul>
+          ` : ''}
+        </div>
 
-        <div class="lean-tip-box">
+        <!-- Tier 3: Gr 9–12 Frontier Rigor & Proofs -->
+        <div class="tier-section" id="tier-gr912">
+          <div class="tier-section-header">
+            <h4 class="tier-section-title">
+              <span class="tier-icon">🚀</span>
+              <span>${i18n.t("tier_frontier")}</span>
+              <span class="level-tag tag-gr912">${i18n.t("tag_gr912")}</span>
+            </h4>
+          </div>
+          <div class="detail-analogy-box" style="margin-bottom: 1rem; border-left-color: var(--accent-rose);">
+            <strong style="color: #fb7185;">🏛️ ${pio.tagline || i18n.t("tier_frontier")}</strong>
+            <p style="margin-top: 0.35rem; line-height: 1.6;">${pio.analogy || ""}</p>
+          </div>
+          ${pio.rules && pio.rules.length ? `
+            <h5 style="margin: 0.75rem 0 0.5rem; color: #fb7185; font-size: 0.95rem; font-weight: 600;">
+              📐 ${i18n.t("rules_title")}
+            </h5>
+            <ul class="english-points" style="margin-bottom: 1rem;">
+              ${pio.rules.map(r => `<li>${r}</li>`).join('')}
+            </ul>
+          ` : ''}
+        </div>
+
+        <!-- Progressive Mystery Exploration (3-Tier View) -->
+        <div style="margin-top: 1.75rem;">
+          <h4 style="margin-bottom: 0.85rem; color: var(--accent-rose); font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>❓</span>
+            <span>${i18n.t("mystery_title")}</span>
+          </h4>
+          <div class="mystery-tier-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+            <div class="detail-analogy-box" style="border-left-color: var(--accent-cyan); background: rgba(56, 189, 248, 0.04);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                <strong style="color: #38bdf8;">🎒 ${i18n.t("grade_explorers")}</strong>
+                <span class="level-tag tag-gr35">${i18n.t("tag_gr35")}</span>
+              </div>
+              <p style="font-size: 0.88rem; line-height: 1.5; color: #cbd5e1; margin: 0;">${exp.mystery || ""}</p>
+            </div>
+            <div class="detail-analogy-box" style="border-left-color: var(--accent-purple); background: rgba(168, 85, 247, 0.04);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                <strong style="color: #c084fc;">🔬 ${i18n.t("grade_investigators")}</strong>
+                <span class="level-tag tag-gr68">${i18n.t("tag_gr68")}</span>
+              </div>
+              <p style="font-size: 0.88rem; line-height: 1.5; color: #cbd5e1; margin: 0;">${inv.mystery || ""}</p>
+            </div>
+            <div class="detail-analogy-box" style="border-left-color: var(--accent-rose); background: rgba(244, 63, 94, 0.04);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                <strong style="color: #fb7185;">🚀 ${i18n.t("grade_pioneers")}</strong>
+                <span class="level-tag tag-gr912">${i18n.t("tag_gr912")}</span>
+              </div>
+              <p style="font-size: 0.88rem; line-height: 1.5; color: #cbd5e1; margin: 0;">${pio.mystery || ""}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fun Fact Across Tiers -->
+        <div class="lean-tip-box" style="margin-top: 1.25rem;">
           <span class="tip-icon">🌟</span>
-          <p><strong>${i18n.t("fun_fact_label")}</strong> ${gradeData.funFact}</p>
+          <p><strong>${i18n.t("fun_fact_label")}</strong> ${inv.funFact || exp.funFact || pio.funFact || ""}</p>
         </div>
       </section>
 
@@ -477,6 +606,37 @@ export class WonderMathApp {
             <div class="zone-title-text">
               <h3>${i18n.t("zone_3_title")}</h3>
               <p>${i18n.t("zone_3_sub")}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tiered Exploration Challenges (梯级探究任务) -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-size: 0.98rem; margin-bottom: 0.75rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 0.4rem;">
+            <span>🎯</span>
+            <span>${i18n.t("lab_challenges_title")}</span>
+          </h4>
+          <div class="lab-challenge-grid">
+            <div class="lab-challenge-card">
+              <div class="lab-challenge-header">
+                <span style="font-weight: 600; color: #38bdf8;">🎒 ${i18n.t("grade_explorers")}</span>
+                <span class="level-tag tag-gr35">${i18n.t("tag_gr35")}</span>
+              </div>
+              <p>${challenges.explorers}</p>
+            </div>
+            <div class="lab-challenge-card">
+              <div class="lab-challenge-header">
+                <span style="font-weight: 600; color: #c084fc;">🔬 ${i18n.t("grade_investigators")}</span>
+                <span class="level-tag tag-gr68">${i18n.t("tag_gr68")}</span>
+              </div>
+              <p>${challenges.investigators}</p>
+            </div>
+            <div class="lab-challenge-card">
+              <div class="lab-challenge-header">
+                <span style="font-weight: 600; color: #fb7185;">🚀 ${i18n.t("grade_pioneers")}</span>
+                <span class="level-tag tag-gr912">${i18n.t("tag_gr912")}</span>
+              </div>
+              <p>${challenges.pioneers}</p>
             </div>
           </div>
         </div>
@@ -521,6 +681,25 @@ export class WonderMathApp {
       </section>
     `;
 
+    // Hook up tier quick jump buttons
+    container.querySelectorAll(".tier-jump-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-target");
+        const el = document.getElementById(targetId);
+        if (el) {
+          if (typeof el.scrollIntoView === "function") {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          if (el.classList) {
+            el.classList.remove("tier-spotlight");
+            void el.offsetWidth;
+            el.classList.add("tier-spotlight");
+            setTimeout(() => el.classList.remove("tier-spotlight"), 1600);
+          }
+        }
+      });
+    });
+
     // Hook up zone navigation smooth scrolling
     container.querySelectorAll(".zone-nav-pill").forEach(pill => {
       pill.addEventListener("click", () => {
@@ -528,7 +707,7 @@ export class WonderMathApp {
         pill.classList.add("active");
         const targetId = pill.getAttribute("data-target");
         const el = document.getElementById(targetId);
-        if (el) {
+        if (el && typeof el.scrollIntoView === "function") {
           el.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       });
@@ -536,7 +715,7 @@ export class WonderMathApp {
 
     // Hook up offline lesson export
     document.getElementById("btn-export-lesson-action")?.addEventListener("click", () => {
-      LessonExporter.exportLesson(conj, this.currentGrade);
+      LessonExporter.exportLesson(conj, this.currentGrade === "all" ? "investigators" : this.currentGrade);
       this.showToast(i18n.t("export_toast_title"), i18n.t("export_toast_msg"));
     });
   }
@@ -881,9 +1060,11 @@ export class WonderMathApp {
     const container = document.getElementById("breakthrough-detail-content");
     if (!container) return;
 
-    const gradeData = (milestone.grades && milestone.grades[this.currentGrade]) || 
-                      (milestone.grades && milestone.grades.explorers) || {};
-    const gradeName = i18n.t(`grade_${this.currentGrade}`);
+    const lang = i18n.getLanguage();
+    const exp = (milestone.grades && milestone.grades.explorers) || {};
+    const inv = (milestone.grades && milestone.grades.investigators) || {};
+    const pio = (milestone.grades && milestone.grades.pioneers) || {};
+    const challenges = getBreakthroughChallenges(milestone.id, lang);
 
     container.innerHTML = `
       <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
@@ -895,9 +1076,22 @@ export class WonderMathApp {
 
       <!-- Hero Banner -->
       <section class="breakthrough-hero animate-fade-in">
-        <div class="grade-tier-indicator grade-${this.currentGrade}" style="margin-bottom: 1.25rem;">
-          <span class="tier-pill">${gradeName}</span>
-          <span class="tier-focus-text">🎯 ${gradeData.tagline || milestone.subtitle}</span>
+        <div class="grade-tier-indicator grade-all" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="tier-pill">🌟 ${i18n.t("grade_all")}</span>
+            <span class="tier-focus-text">🎯 ${inv.tagline || exp.tagline || milestone.subtitle || ""}</span>
+          </div>
+          <div class="tier-nav-shortcuts" style="display: flex; gap: 0.4rem; align-items: center;">
+            <button class="tier-jump-btn" data-target="tier-gr35" style="background: none; border: none; padding: 0; cursor: pointer;">
+              <span class="level-tag tag-gr35">🎒 ${i18n.t("tag_gr35")}</span>
+            </button>
+            <button class="tier-jump-btn" data-target="tier-gr68" style="background: none; border: none; padding: 0; cursor: pointer;">
+              <span class="level-tag tag-gr68">🔬 ${i18n.t("tag_gr68")}</span>
+            </button>
+            <button class="tier-jump-btn" data-target="tier-gr912" style="background: none; border: none; padding: 0; cursor: pointer;">
+              <span class="level-tag tag-gr912">🚀 ${i18n.t("tag_gr912")}</span>
+            </button>
+          </div>
         </div>
 
         <div style="display: flex; align-items: flex-start; gap: 1.25rem;">
@@ -922,37 +1116,109 @@ export class WonderMathApp {
         </div>
       </section>
 
-      <!-- Zone 1: Multi-Grade Adapted Learning Tiers -->
-      <section class="zone-card animate-fade-in" style="margin-bottom: 2rem;">
+      <!-- Zone 1: Multi-Grade Adapted Learning Tiers (全阶梯贯通) -->
+      <section class="zone-card animate-fade-in" id="zone-principles" style="margin-bottom: 2rem;">
         <div class="zone-header-row">
           <div class="zone-title-wrap">
             <span class="zone-badge z1">Zone ① Differentiated Learning</span>
             <div class="zone-title-text">
-              <h3>Multi-Tier Intuition & Mechanics (${gradeName})</h3>
-              <p>${gradeData.tagline || ""}</p>
+              <h3>Multi-Tier Intuition & Mechanics</h3>
+              <p>Step-by-step cognitive escalation from elementary intuition to mathematical rigor.</p>
             </div>
           </div>
         </div>
 
-        <div class="detail-analogy-box" style="margin-bottom: 1.25rem;">
-          <strong>💡 Intuitive Analogy:</strong>
-          <p style="margin: 0.5rem 0 0 0; line-height: 1.6;">${gradeData.analogy || ""}</p>
+        <!-- Tier 1: Gr 3–5 Foundations -->
+        <div class="tier-section" id="tier-gr35">
+          <div class="tier-section-header">
+            <h4 class="tier-section-title">
+              <span class="tier-icon">🎒</span>
+              <span>${i18n.t("tier_foundations")}</span>
+              <span class="level-tag tag-gr35">${i18n.t("tag_gr35")}</span>
+            </h4>
+          </div>
+          <div class="detail-analogy-box" style="margin-bottom: 0.85rem;">
+            <strong>💡 Intuitive Analogy:</strong>
+            <p style="margin: 0.35rem 0 0 0; line-height: 1.6;">${exp.analogy || ""}</p>
+          </div>
+          <div class="detail-analogy-box" style="margin-bottom: 1rem; border-left-color: var(--accent-cyan);">
+            <strong style="color: #38bdf8;">⚙️ How It Works (Elementary):</strong>
+            <p style="margin: 0.35rem 0 0 0; line-height: 1.5; white-space: pre-line;">${exp.howItWorks || ""}</p>
+          </div>
         </div>
 
-        <div class="grid-2col" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
-          <div class="detail-analogy-box" style="border-left-color: var(--accent-purple);">
-            <strong style="color: #c084fc;">⚙️ Core How-It-Works:</strong>
-            <p style="margin: 0.5rem 0 0 0; line-height: 1.5; white-space: pre-line;">${gradeData.howItWorks || ""}</p>
+        <!-- Tier 2: Gr 6–8 Mechanics -->
+        <div class="tier-section" id="tier-gr68">
+          <div class="tier-section-header">
+            <h4 class="tier-section-title">
+              <span class="tier-icon">🔬</span>
+              <span>${i18n.t("tier_investigation")}</span>
+              <span class="level-tag tag-gr68">${i18n.t("tag_gr68")}</span>
+            </h4>
           </div>
-          <div class="detail-analogy-box" style="border-left-color: var(--accent-emerald);">
-            <strong style="color: #34d399;">🔍 Unsolved Mystery Cracked:</strong>
-            <p style="margin: 0.5rem 0 0 0; line-height: 1.5;">${gradeData.mysterySolved || ""}</p>
+          <div class="detail-analogy-box" style="margin-bottom: 0.85rem; border-left-color: var(--accent-purple);">
+            <strong style="color: #c084fc;">⚙️ Algorithmic Mechanics:</strong>
+            <p style="margin: 0.35rem 0 0 0; line-height: 1.6;">${inv.analogy || ""}</p>
+          </div>
+          <div class="detail-analogy-box" style="margin-bottom: 1rem; border-left-color: var(--accent-purple);">
+            <strong style="color: #c084fc;">🔍 Systematic Breakdown:</strong>
+            <p style="margin: 0.35rem 0 0 0; line-height: 1.5; white-space: pre-line;">${inv.howItWorks || ""}</p>
           </div>
         </div>
 
-        <div class="card-footer-meta" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-sm); padding: 0.75rem 1rem;">
+        <!-- Tier 3: Gr 9–12 Frontier Rigor -->
+        <div class="tier-section" id="tier-gr912">
+          <div class="tier-section-header">
+            <h4 class="tier-section-title">
+              <span class="tier-icon">🚀</span>
+              <span>${i18n.t("tier_frontier")}</span>
+              <span class="level-tag tag-gr912">${i18n.t("tag_gr912")}</span>
+            </h4>
+          </div>
+          <div class="detail-analogy-box" style="margin-bottom: 0.85rem; border-left-color: var(--accent-rose);">
+            <strong style="color: #fb7185;">🏛️ Frontier Architecture:</strong>
+            <p style="margin: 0.35rem 0 0 0; line-height: 1.6;">${pio.analogy || ""}</p>
+          </div>
+          <div class="detail-analogy-box" style="margin-bottom: 1rem; border-left-color: var(--accent-rose);">
+            <strong style="color: #fb7185;">📐 Formal Kernel & Loss Mechanics:</strong>
+            <p style="margin: 0.35rem 0 0 0; line-height: 1.5; white-space: pre-line;">${pio.howItWorks || ""}</p>
+          </div>
+        </div>
+
+        <!-- Progressive Mystery Solved Comparison -->
+        <div style="margin-top: 1.5rem;">
+          <h4 style="margin-bottom: 0.75rem; color: var(--accent-emerald); font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>🔍</span>
+            <span>Unsolved Mystery Cracked Across Tiers</span>
+          </h4>
+          <div class="mystery-tier-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+            <div class="detail-analogy-box" style="border-left-color: var(--accent-cyan); background: rgba(56, 189, 248, 0.04);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                <strong style="color: #38bdf8;">🎒 ${i18n.t("grade_explorers")}</strong>
+                <span class="level-tag tag-gr35">${i18n.t("tag_gr35")}</span>
+              </div>
+              <p style="font-size: 0.88rem; line-height: 1.5; color: #cbd5e1; margin: 0;">${exp.mysterySolved || ""}</p>
+            </div>
+            <div class="detail-analogy-box" style="border-left-color: var(--accent-purple); background: rgba(168, 85, 247, 0.04);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                <strong style="color: #c084fc;">🔬 ${i18n.t("grade_investigators")}</strong>
+                <span class="level-tag tag-gr68">${i18n.t("tag_gr68")}</span>
+              </div>
+              <p style="font-size: 0.88rem; line-height: 1.5; color: #cbd5e1; margin: 0;">${inv.mysterySolved || ""}</p>
+            </div>
+            <div class="detail-analogy-box" style="border-left-color: var(--accent-rose); background: rgba(244, 63, 94, 0.04);">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                <strong style="color: #fb7185;">🚀 ${i18n.t("grade_pioneers")}</strong>
+                <span class="level-tag tag-gr912">${i18n.t("tag_gr912")}</span>
+              </div>
+              <p style="font-size: 0.88rem; line-height: 1.5; color: #cbd5e1; margin: 0;">${pio.mysterySolved || ""}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer-meta" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-top: 1rem;">
           <span style="color: #fbbf24; font-weight: 600;">✨ Fun Fact:</span>
-          <span style="color: var(--text-primary); margin-left: 0.5rem;">${gradeData.funFact || ""}</span>
+          <span style="color: var(--text-primary); margin-left: 0.5rem;">${inv.funFact || exp.funFact || pio.funFact || ""}</span>
         </div>
       </section>
 
@@ -986,9 +1252,9 @@ export class WonderMathApp {
             </ul>
           </div>
           <div class="collab-card synergy">
-            <h4>🤝 The Breakthrough Division (${gradeName})</h4>
+            <h4>🤝 The Breakthrough Division</h4>
             <p style="margin: 0; line-height: 1.6; color: var(--text-primary);">
-              ${gradeData.humanVsAi || ""}
+              ${inv.humanVsAi || exp.humanVsAi || pio.humanVsAi || ""}
             </p>
           </div>
         </div>
@@ -1002,6 +1268,37 @@ export class WonderMathApp {
             <div class="zone-title-text">
               <h3>Interactive Verification Sandbox: ${milestone.model}</h3>
               <p>Experiment with parameters, step through proof trajectories, and watch AI optimization live.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tiered Exploration Challenges -->
+        <div style="margin-bottom: 1.25rem;">
+          <h4 style="font-size: 0.98rem; margin-bottom: 0.75rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 0.4rem;">
+            <span>🎯</span>
+            <span>${i18n.t("lab_challenges_title")}</span>
+          </h4>
+          <div class="lab-challenge-grid">
+            <div class="lab-challenge-card">
+              <div class="lab-challenge-header">
+                <span style="font-weight: 600; color: #38bdf8;">🎒 ${i18n.t("grade_explorers")}</span>
+                <span class="level-tag tag-gr35">${i18n.t("tag_gr35")}</span>
+              </div>
+              <p>${challenges.explorers}</p>
+            </div>
+            <div class="lab-challenge-card">
+              <div class="lab-challenge-header">
+                <span style="font-weight: 600; color: #c084fc;">🔬 ${i18n.t("grade_investigators")}</span>
+                <span class="level-tag tag-gr68">${i18n.t("tag_gr68")}</span>
+              </div>
+              <p>${challenges.investigators}</p>
+            </div>
+            <div class="lab-challenge-card">
+              <div class="lab-challenge-header">
+                <span style="font-weight: 600; color: #fb7185;">🚀 ${i18n.t("grade_pioneers")}</span>
+                <span class="level-tag tag-gr912">${i18n.t("tag_gr912")}</span>
+              </div>
+              <p>${challenges.pioneers}</p>
             </div>
           </div>
         </div>
@@ -1032,6 +1329,25 @@ export class WonderMathApp {
         </div>
       </section>
     `;
+
+    // Hook up tier quick jump buttons
+    container.querySelectorAll(".tier-jump-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-target");
+        const el = document.getElementById(targetId);
+        if (el) {
+          if (typeof el.scrollIntoView === "function") {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          if (el.classList) {
+            el.classList.remove("tier-spotlight");
+            void el.offsetWidth;
+            el.classList.add("tier-spotlight");
+            setTimeout(() => el.classList.remove("tier-spotlight"), 1600);
+          }
+        }
+      });
+    });
 
     document.getElementById("btn-back-to-timeline")?.addEventListener("click", () => {
       this.switchView("timeline");
