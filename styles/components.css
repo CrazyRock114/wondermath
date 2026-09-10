@@ -581,3 +581,79 @@
   color: var(--text-primary);
   font-weight: 500;
 }
+
+/* AI Breakthrough Cards & Detail View Styling */
+.ai-breakthrough-card {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s;
+  cursor: pointer;
+}
+
+.ai-breakthrough-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.15);
+}
+
+.breakthrough-hero {
+  background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 60%),
+              radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.1), transparent 60%),
+              var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.collaboration-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.collab-card {
+  background: var(--bg-card-secondary, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.collab-card h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.05rem;
+}
+
+.collab-card.human h4 {
+  color: #38bdf8;
+}
+
+.collab-card.ai h4 {
+  color: #a855f7;
+}
+
+.collab-card.synergy {
+  grid-column: 1 / -1;
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.collab-card.synergy h4 {
+  color: #34d399;
+}
+
+.breakthrough-code-block {
+  background: #080c14;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  overflow-x: auto;
+  line-height: 1.6;
+  white-space: pre;
+}

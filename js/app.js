@@ -5,7 +5,7 @@
  */
 
 import { getLocalizedConjectures } from "./data/conjectures.js";
-import { getLocalizedAIBreakthroughs } from "./data/ai_breakthroughs.js";
+import { getLocalizedAIBreakthroughs, getBreakthroughById } from "./data/ai_breakthroughs.js";
 import { i18n } from "./i18n/i18n.js";
 
 // Import Simulations
@@ -19,17 +19,19 @@ import { JacobianGridSimulation } from "./simulations/jacobian_grid.js";
 import { EllipticCurveSimulation } from "./simulations/elliptic_curve.js";
 import { LessonExporter } from "./export/lesson_exporter.js";
 import { UniversalConjectureLab } from "./simulations/universal_lab.js";
+import { AIBreakthroughLab } from "./simulations/ai_breakthrough_labs.js";
 
 // Import AI Lab
 import { AIConjectureExplorer } from "./ai_lab/explorer.js";
 import { LeanViewer } from "./ai_lab/lean_viewer.js";
 import { CounterexampleHunter } from "./ai_lab/counterexample_sim.js";
 
-class WonderMathApp {
+export class WonderMathApp {
   constructor() {
     this.currentGrade = "explorers"; // 'explorers', 'investigators', 'pioneers'
     this.currentView = "gallery";
     this.activeConjectureId = null;
+    this.activeBreakthroughId = null;
     this.activeSimulation = null;
     this.searchQuery = "";
     this.activeCategoryFilter = "all";
@@ -72,15 +74,8 @@ class WonderMathApp {
     });
 
     // Handle initial hash routing if present
-    const hash = window.location.hash.replace("#", "");
-    if (hash) {
-      if (["gallery", "ai-lab", "timeline", "lean-view"].includes(hash)) {
-        this.switchView(hash);
-      } else {
-        const conj = this.conjectures.find(c => c.id === hash);
-        if (conj) this.openConjecture(conj.id);
-      }
-    }
+    this.handleRoute();
+    window.addEventListener("hashchange", () => this.handleRoute());
   }
 
   setupLanguageSelector() {
@@ -107,6 +102,15 @@ class WonderMathApp {
       if (conj) {
         this.renderDetailContent(conj);
         this.initConjectureSimulation(conj);
+      }
+    } else if (this.currentView === "breakthrough-detail" && this.activeBreakthroughId) {
+      const milestone = getBreakthroughById(this.activeBreakthroughId, i18n.getLanguage());
+      if (milestone) {
+        if (this.activeSimulation && typeof this.activeSimulation.destroy === "function") {
+          this.activeSimulation.destroy();
+        }
+        this.activeSimulation = null;
+        this.renderBreakthroughDetail(milestone);
       }
     }
 
@@ -159,11 +163,20 @@ class WonderMathApp {
         this.renderDetailContent(conj);
         this.initConjectureSimulation(conj);
       }
+    } else if (this.activeBreakthroughId && this.currentView === "breakthrough-detail") {
+      const milestone = getBreakthroughById(this.activeBreakthroughId, i18n.getLanguage());
+      if (milestone) {
+        if (this.activeSimulation && typeof this.activeSimulation.destroy === "function") {
+          this.activeSimulation.destroy();
+        }
+        this.activeSimulation = null;
+        this.renderBreakthroughDetail(milestone);
+      }
     }
   }
 
   switchView(viewId) {
-    if (viewId !== "detail" && this.activeSimulation) {
+    if (viewId !== "detail" && viewId !== "breakthrough-detail" && this.activeSimulation) {
       if (typeof this.activeSimulation.destroy === "function") {
         this.activeSimulation.destroy();
       }
@@ -171,10 +184,13 @@ class WonderMathApp {
     }
 
     this.currentView = viewId;
-    window.location.hash = viewId;
+    if (viewId !== "breakthrough-detail") {
+      window.location.hash = viewId;
+    }
 
     document.querySelectorAll(".nav-link").forEach(l => {
-      l.classList.toggle("active", l.getAttribute("data-view") === viewId);
+      const targetNav = viewId === "breakthrough-detail" ? "timeline" : viewId;
+      l.classList.toggle("active", l.getAttribute("data-view") === targetNav);
     });
 
     document.querySelectorAll(".view-container").forEach(v => v.classList.remove("active"));
@@ -782,6 +798,31 @@ class WonderMathApp {
     }
   }
 
+  handleRoute() {
+    const raw = window.location.hash.replace(/^#/, "");
+    if (!raw || raw === "gallery") {
+      this.switchView("gallery");
+    } else if (["ai-lab", "timeline", "lean-view"].includes(raw)) {
+      this.switchView(raw);
+    } else if (raw.startsWith("timeline/")) {
+      const id = raw.replace("timeline/", "");
+      this.openBreakthrough(id);
+    } else if (raw.startsWith("breakthrough/")) {
+      const id = raw.replace("breakthrough/", "");
+      this.openBreakthrough(id);
+    } else {
+      const conj = this.conjectures.find(c => c.id === raw);
+      if (conj) {
+        this.openConjecture(conj.id);
+      } else {
+        const milestone = getBreakthroughById(raw, i18n.getLanguage());
+        if (milestone) {
+          this.openBreakthrough(milestone.id);
+        }
+      }
+    }
+  }
+
   renderAIBreakthroughs() {
     const container = document.getElementById("ai-milestones-container");
     if (!container) return;
@@ -791,22 +832,226 @@ class WonderMathApp {
     container.innerHTML = `
       <div class="conjectures-grid">
         ${breakthroughs.map(m => `
-          <div class="conjecture-card" style="cursor: default;">
+          <div class="conjecture-card ai-breakthrough-card" data-id="${m.id}">
             <div class="card-header-row">
               <span style="font-size: 1.1rem; font-weight: 700; color: var(--accent-cyan); font-family: var(--font-mono);">${m.year}</span>
               <span class="status-badge badge-ai">${m.badge}</span>
             </div>
-            <h3>${m.achievement}</h3>
-            <div class="card-subtitle"><strong>System:</strong> ${m.model} (${m.system})</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem;">
+              <span style="font-size: 1.6rem;">${m.icon || "⚡"}</span>
+              <h3 style="margin: 0; font-size: 1.15rem;">${m.title}</h3>
+            </div>
+            <div class="card-subtitle" style="margin-top: 0.4rem;"><strong>System:</strong> ${m.model} (${m.system})</div>
             <p class="card-tagline" style="margin-bottom: 0.75rem;">${m.description}</p>
             <div class="card-footer-meta">
               <span>${m.impact}</span>
-              <span style="color: var(--accent-emerald);">${i18n.t("verified_badge")}</span>
+              <span style="color: var(--accent-cyan); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                Explore Lab →
+              </span>
             </div>
           </div>
         `).join('')}
       </div>
     `;
+
+    container.querySelectorAll(".ai-breakthrough-card").forEach(card => {
+      card.addEventListener("click", () => {
+        const id = card.getAttribute("data-id");
+        this.openBreakthrough(id);
+      });
+    });
+  }
+
+  openBreakthrough(id) {
+    if (this.activeSimulation && typeof this.activeSimulation.destroy === "function") {
+      this.activeSimulation.destroy();
+    }
+    this.activeSimulation = null;
+
+    this.activeBreakthroughId = id;
+    const milestone = getBreakthroughById(id, i18n.getLanguage());
+    if (!milestone) return;
+
+    window.location.hash = `timeline/${id}`;
+    this.switchView("breakthrough-detail");
+    this.renderBreakthroughDetail(milestone);
+  }
+
+  renderBreakthroughDetail(milestone) {
+    const container = document.getElementById("breakthrough-detail-content");
+    if (!container) return;
+
+    const gradeData = (milestone.grades && milestone.grades[this.currentGrade]) || 
+                      (milestone.grades && milestone.grades.explorers) || {};
+    const gradeName = i18n.t(`grade_${this.currentGrade}`);
+
+    container.innerHTML = `
+      <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+        <button class="btn-outline" id="btn-back-to-timeline" style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          ← Back to 2021–2026 Milestones
+        </button>
+        <span class="status-badge badge-ai">${milestone.badge}</span>
+      </div>
+
+      <!-- Hero Banner -->
+      <section class="breakthrough-hero animate-fade-in">
+        <div class="grade-tier-indicator grade-${this.currentGrade}" style="margin-bottom: 1.25rem;">
+          <span class="tier-pill">${gradeName}</span>
+          <span class="tier-focus-text">🎯 ${gradeData.tagline || milestone.subtitle}</span>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 1.25rem;">
+          <span style="font-size: 3.5rem; line-height: 1;">${milestone.icon || "⚡"}</span>
+          <div style="flex: 1;">
+            <h2 style="font-size: 1.85rem; margin: 0 0 0.5rem 0;">${milestone.title}</h2>
+            <div class="card-subtitle" style="font-size: 1.05rem; margin-bottom: 0.75rem;">
+              <strong>${milestone.year} (${milestone.dateFull})</strong> • ${milestone.model} (${milestone.system})
+            </div>
+            <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+              ${milestone.description}
+            </p>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+              <span class="status-badge badge-proven">Impact: ${milestone.impact}</span>
+              ${milestone.paperUrl ? `
+                <a href="${milestone.paperUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.85rem; font-size: 0.85rem;">
+                  📄 ${milestone.paperTitle || "Original Publication"} ↗
+                </a>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Zone 1: Multi-Grade Adapted Learning Tiers -->
+      <section class="zone-card animate-fade-in" style="margin-bottom: 2rem;">
+        <div class="zone-header-row">
+          <div class="zone-title-wrap">
+            <span class="zone-badge z1">Zone ① Differentiated Learning</span>
+            <div class="zone-title-text">
+              <h3>Multi-Tier Intuition & Mechanics (${gradeName})</h3>
+              <p>${gradeData.tagline || ""}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-analogy-box" style="margin-bottom: 1.25rem;">
+          <strong>💡 Intuitive Analogy:</strong>
+          <p style="margin: 0.5rem 0 0 0; line-height: 1.6;">${gradeData.analogy || ""}</p>
+        </div>
+
+        <div class="grid-2col" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+          <div class="detail-analogy-box" style="border-left-color: var(--accent-purple);">
+            <strong style="color: #c084fc;">⚙️ Core How-It-Works:</strong>
+            <p style="margin: 0.5rem 0 0 0; line-height: 1.5; white-space: pre-line;">${gradeData.howItWorks || ""}</p>
+          </div>
+          <div class="detail-analogy-box" style="border-left-color: var(--accent-emerald);">
+            <strong style="color: #34d399;">🔍 Unsolved Mystery Cracked:</strong>
+            <p style="margin: 0.5rem 0 0 0; line-height: 1.5;">${gradeData.mysterySolved || ""}</p>
+          </div>
+        </div>
+
+        <div class="card-footer-meta" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-sm); padding: 0.75rem 1rem;">
+          <span style="color: #fbbf24; font-weight: 600;">✨ Fun Fact:</span>
+          <span style="color: var(--text-primary); margin-left: 0.5rem;">${gradeData.funFact || ""}</span>
+        </div>
+      </section>
+
+      <!-- Zone 2: Human vs AI Mathematical Collaboration -->
+      <section class="zone-card animate-fade-in" style="margin-bottom: 2rem;">
+        <div class="zone-header-row">
+          <div class="zone-title-wrap">
+            <span class="zone-badge z2">Zone ② Collaboration Division</span>
+            <div class="zone-title-text">
+              <h3>Human Mathematician & Artificial Intelligence Synergy</h3>
+              <p>How intuitive insight and machine-scale formal search united to conquer open problems.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="collaboration-grid">
+          <div class="collab-card human">
+            <h4>🧑 Human Mathematician</h4>
+            <ul style="padding-left: 1.25rem; margin: 0; line-height: 1.6; color: var(--text-secondary);">
+              <li>Formulating conceptual frameworks & conjectures</li>
+              <li>Spatial geometric reasoning & heuristic diagram sketching</li>
+              <li>Translating informal intuition into structured lemma architectures</li>
+            </ul>
+          </div>
+          <div class="collab-card ai">
+            <h4>🤖 AI & Automated Reasoning</h4>
+            <ul style="padding-left: 1.25rem; margin: 0; line-height: 1.6; color: var(--text-secondary);">
+              <li>Exploring tens of millions of proof trees via MCTS & RL</li>
+              <li>High-dimensional tensor rank and algebraic decomposition</li>
+              <li>100% formal kernel type checking with zero hallucination</li>
+            </ul>
+          </div>
+          <div class="collab-card synergy">
+            <h4>🤝 The Breakthrough Division (${gradeName})</h4>
+            <p style="margin: 0; line-height: 1.6; color: var(--text-primary);">
+              ${gradeData.humanVsAi || ""}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Zone 3: Interactive Breakthrough Laboratory -->
+      <section class="zone-card animate-fade-in" style="margin-bottom: 2rem;">
+        <div class="zone-header-row">
+          <div class="zone-title-wrap">
+            <span class="zone-badge z3">Zone ③ Hands-On Lab</span>
+            <div class="zone-title-text">
+              <h3>Interactive Verification Sandbox: ${milestone.model}</h3>
+              <p>Experiment with parameters, step through proof trajectories, and watch AI optimization live.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="ai-lab-mount" style="margin-top: 1rem;"></div>
+        <div id="ai-lab-stats" class="sim-stats-grid" style="margin-top: 1.25rem;"></div>
+      </section>
+
+      <!-- Zone 4: Machine-Checked Code & Formal Verification -->
+      <section class="zone-card animate-fade-in" style="margin-bottom: 2rem;">
+        <div class="zone-header-row">
+          <div class="zone-title-wrap">
+            <span class="zone-badge z4">Zone ④ Formal Artifact</span>
+            <div class="zone-title-text">
+              <h3>Lean 4 / Machine-Checked Formal Specification</h3>
+              <p>Certified mathematical logic verified by formal proof kernel.</p>
+            </div>
+          </div>
+          <button class="btn-outline" id="btn-copy-lean-snippet" style="font-size: 0.85rem; padding: 0.35rem 0.75rem; cursor: pointer;">
+            📋 Copy Formal Snippet
+          </button>
+        </div>
+
+        <pre class="breakthrough-code-block"><code>${milestone.leanSnippet || "-- Formal code artifact"}</code></pre>
+        <div style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
+          <span style="color: var(--accent-emerald);">🛡️ Formal Verification Guarantee:</span>
+          Verified by Lean 4 interactive theorem prover. Dependent Type Theory eliminates human grading oversights.
+        </div>
+      </section>
+    `;
+
+    document.getElementById("btn-back-to-timeline")?.addEventListener("click", () => {
+      this.switchView("timeline");
+    });
+
+    document.getElementById("btn-copy-lean-snippet")?.addEventListener("click", () => {
+      if (milestone.leanSnippet && typeof navigator !== "undefined" && navigator.clipboard) {
+        navigator.clipboard.writeText(milestone.leanSnippet).then(() => {
+          const btn = document.getElementById("btn-copy-lean-snippet");
+          if (btn) {
+            btn.textContent = "✓ Copied to Clipboard!";
+            setTimeout(() => { btn.textContent = "📋 Copy Formal Snippet"; }, 2000);
+          }
+        });
+      }
+    });
+
+    // Mount Interactive Laboratory
+    const lab = new AIBreakthroughLab("ai-lab-mount", "ai-lab-stats", milestone);
+    this.activeSimulation = lab;
   }
 }
 
