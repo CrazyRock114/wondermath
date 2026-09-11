@@ -24,7 +24,7 @@ Every lesson, analogy, historical milestone, simulation label, and glossary is n
 * 🇯🇵 **日本語** (`ja`)
 * 🇰🇷 **한국어** (`ko`)
 * 🇨🇳 **简体中文** (`zh-Hans`)
-* 🇹🇼 **繁體中文** (`zh-Hant`)
+* 🇭🇰 **繁體中文** (`zh-Hant`)
 Instant language switching with automatic browser locale detection and `localStorage` persistence.
 
 ### 3. 🏛️ Standardized 4-Zone Pedagogical Architecture

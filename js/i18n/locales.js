@@ -1911,7 +1911,7 @@ export const LOCALES = {
     btn_clear_filters: "清除篩選條件",
 
     name: "繁體中文",
-    flag: "🇹🇼",
+    flag: "🇭🇰",
     nav_conjectures: "數學猜想",
     nav_ai_lab: "🤖 AI數學搭檔",
     nav_timeline: "2026 AI重大突破",
