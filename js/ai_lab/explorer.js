@@ -280,7 +280,10 @@ export class AIConjectureExplorer {
   render() {
     if (!this.container) return;
 
-    const lang = i18n.getLanguage();
+    let lang = i18n.getLanguage() || "en";
+    if (lang === "zh" || lang === "zh-CN") lang = "zh-Hans";
+    if (lang === "zh-TW" || lang === "zh-HK") lang = "zh-Hant";
+
     const data = this.presetHypotheses[this.currentTopic] || this.presetHypotheses.collatz_5n1;
     const loc = data.locales[lang] || data.locales.en;
 
@@ -342,7 +345,7 @@ export class AIConjectureExplorer {
 
             <div class="lean-snippet-preview">
               <div class="lean-header">
-                <span>Formal Lean 4 Statement</span>
+                <span>${i18n.t("lean_header_title")}</span>
                 <span class="lean-lang-badge">Lean 4</span>
               </div>
               <pre class="lean-code-block"><code>${data.leanProofSnippet}</code></pre>

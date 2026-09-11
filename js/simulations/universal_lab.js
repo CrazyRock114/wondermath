@@ -46,10 +46,10 @@ export class UniversalConjectureLab {
             <label>=</label>
             <label>C:</label><input type="number" id="beal-c" class="custom-input" value="3" min="1" max="100" style="width:60px;">
             <label>z:</label><input type="number" id="beal-z" class="custom-input" value="5" min="3" max="10" style="width:55px;">
-            <button class="btn-primary" id="btn-beal-calc">⚡ Check Beal</button>
+            <button class="btn-primary" id="btn-beal-calc">${i18n.t("btn_beal_calc")}</button>
           </div>
           <div class="input-slider-group">
-            <label>Presets:</label>
+            <label>${i18n.t("presets_label")}</label>
             <button class="preset-pill-btn" data-preset="beal-3">3³ + 6³ = 3⁵ (gcd 3)</button>
             <button class="preset-pill-btn" data-preset="beal-7">7³ + 7⁴ = 14³ (gcd 7)</button>
             <button class="preset-pill-btn" data-preset="beal-2">2³ + 2³ = 2⁴ (gcd 2)</button>
@@ -63,7 +63,7 @@ export class UniversalConjectureLab {
             <label>Corridor Turn Angle θ:</label>
             <input type="range" id="sofa-angle" min="0" max="90" value="45" style="width:160px;">
             <strong id="sofa-angle-val" class="highlight-val">45°</strong>
-            <button class="btn-primary" id="btn-sofa-play">▶ Auto Navigate</button>
+            <button class="btn-primary" id="btn-sofa-play">${i18n.t("btn_auto_navigate")}</button>
           </div>
           <div class="input-slider-group">
             <label>Sofa Shape Model:</label>
@@ -86,7 +86,7 @@ export class UniversalConjectureLab {
               <option value="star">Deformed Star Loop</option>
               <option value="trefoil">Hypotrochoid</option>
             </select>
-            <button class="btn-primary" id="btn-find-square">🔍 Inscribe Square</button>
+            <button class="btn-primary" id="btn-find-square">${i18n.t("btn_inscribe_square")}</button>
           </div>
           <div class="input-slider-group">
             <label>Square Rotation:</label>
@@ -101,12 +101,12 @@ export class UniversalConjectureLab {
           <div class="input-slider-group">
             <label>Seed Number:</label>
             <input type="number" id="lychrel-seed" class="custom-input" value="196" min="1" max="99999" style="width:90px;">
-            <button class="btn-primary" id="btn-lychrel-step">Step (Reverse & Add)</button>
-            <button class="btn-secondary" id="btn-lychrel-run">Auto 25 Steps</button>
-            <button class="btn-secondary" id="btn-lychrel-reset">Reset</button>
+            <button class="btn-primary" id="btn-lychrel-step">${i18n.t("btn_reverse_add")}</button>
+            <button class="btn-secondary" id="btn-lychrel-run">${i18n.t("btn_auto_25_steps")}</button>
+            <button class="btn-secondary" id="btn-lychrel-reset">${i18n.t("btn_reset")}</button>
           </div>
           <div class="input-slider-group">
-            <label>Presets:</label>
+            <label>${i18n.t("presets_label")}</label>
             <button class="preset-pill-btn" data-seed="196">196 (The Mystery)</button>
             <button class="preset-pill-btn" data-seed="89">89 (24 Steps to Palindrome)</button>
             <button class="preset-pill-btn" data-seed="10911">10911 (55 Steps)</button>
@@ -119,8 +119,8 @@ export class UniversalConjectureLab {
           <div class="input-slider-group">
             <label>n (Denominator):</label>
             <input type="number" id="es-n" class="custom-input" value="5" min="2" max="10000" style="width:80px;">
-            <button class="btn-primary" id="btn-es-solve">Solve 4/n = 1/x + 1/y + 1/z</button>
-            <button class="btn-secondary" id="btn-es-scan">Scan Primes n=5..50</button>
+            <button class="btn-primary" id="btn-es-solve">${i18n.t("btn_solve_egyptian")}</button>
+            <button class="btn-secondary" id="btn-es-scan">${i18n.t("btn_scan_primes")}</button>
           </div>
         </div>
       `;
@@ -149,8 +149,8 @@ export class UniversalConjectureLab {
             <label>Runners (k):</label>
             <input type="range" id="runner-k" min="3" max="8" value="5" style="width:100px;">
             <strong id="runner-k-val" class="highlight-val">k = 5</strong>
-            <button class="btn-primary" id="btn-runner-play">▶ Run</button>
-            <button class="btn-secondary" id="btn-runner-reset">Reset</button>
+            <button class="btn-primary" id="btn-runner-play">${i18n.t("btn_step")}</button>
+            <button class="btn-secondary" id="btn-runner-reset">${i18n.t("btn_reset")}</button>
           </div>
           <div class="input-slider-group">
             <label>Time t:</label>
@@ -169,8 +169,8 @@ export class UniversalConjectureLab {
               <option value="4" selected>n = 4 (Quartic)</option>
               <option value="5">n = 5 (Quintic)</option>
             </select>
-            <button class="btn-primary" id="btn-sendov-rand">🎲 Random Roots in Disk</button>
-            <button class="btn-secondary" id="btn-sendov-check">Verify Sendov Condition</button>
+            <button class="btn-primary" id="btn-sendov-rand">${i18n.t("btn_rand_roots")}</button>
+            <button class="btn-secondary" id="btn-sendov-check">${i18n.t("btn_verify_sendov")}</button>
           </div>
         </div>
       `;
@@ -183,8 +183,8 @@ export class UniversalConjectureLab {
             <button class="btn-sm" id="sat-toggle-x2">x₂: <span id="sat-val-x2">F</span></button>
             <button class="btn-sm" id="sat-toggle-x3">x₃: <span id="sat-val-x3">T</span></button>
             <button class="btn-sm" id="sat-toggle-x4">x₄: <span id="sat-val-x4">T</span></button>
-            <button class="btn-primary" id="btn-sat-verify">⚡ Verify in O(n)</button>
-            <button class="btn-secondary" id="btn-sat-brute">Explore 2⁴ States</button>
+            <button class="btn-primary" id="btn-sat-verify">${i18n.t("btn_verify_on")}</button>
+            <button class="btn-secondary" id="btn-sat-brute">${i18n.t("btn_explore_states")}</button>
           </div>
         </div>
       `;
@@ -195,15 +195,15 @@ export class UniversalConjectureLab {
           <div class="input-slider-group">
             <label>Parameter Input N:</label>
             <input type="number" id="univ-param-n" class="custom-input" value="12" min="1" max="10000" style="width:90px;">
-            <button class="btn-primary" id="btn-univ-eval">⚡ Evaluate Property</button>
-            <button class="btn-secondary" id="btn-univ-scan">🔍 Scan Range (1..50)</button>
+            <button class="btn-primary" id="btn-univ-eval">${i18n.t("btn_eval_property")}</button>
+            <button class="btn-secondary" id="btn-univ-scan">${i18n.t("btn_scan_range")}</button>
           </div>
           <div class="input-slider-group">
             <label>Mode:</label>
             <select id="univ-mode-select" class="custom-select">
-              <option value="verify" selected>Direct Verification</option>
-              <option value="counterexample">Counterexample Search</option>
-              <option value="distribution">Statistical Density</option>
+              <option value="verify" selected>${i18n.t("opt_direct_verify")}</option>
+              <option value="counterexample">${i18n.t("opt_counterexample")}</option>
+              <option value="distribution">${i18n.t("opt_distribution")}</option>
             </select>
           </div>
         </div>
@@ -216,7 +216,7 @@ export class UniversalConjectureLab {
         <canvas id="universal-lab-canvas"></canvas>
       </div>
       <div class="sim-telemetry-banner" id="lab-telemetry-banner" style="margin-top: 1rem; padding: 0.85rem 1.25rem; background: rgba(15,23,42,0.85); border: 1px solid rgba(56,189,248,0.25); border-radius: 8px; font-family: monospace; font-size: 0.85rem; color: #cbd5e1;">
-        Initializing interactive simulation...
+        ${i18n.t("sim_telemetry_init")}
       </div>
     `;
   }

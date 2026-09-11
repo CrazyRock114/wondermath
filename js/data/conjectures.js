@@ -26,13 +26,27 @@ export {
 
 export const RAW_CONJECTURES = ALL_CONJECTURES_RAW;
 
+function normalizeLang(lang) {
+  if (!lang) return "en";
+  const l = String(lang).toLowerCase();
+  if (l === "zh-hant" || l.includes("tw") || l.includes("hk") || l.includes("traditional")) return "zh-Hant";
+  if (l.startsWith("zh")) return "zh-Hans";
+  if (l.startsWith("de")) return "de";
+  if (l.startsWith("fr")) return "fr";
+  if (l.startsWith("it")) return "it";
+  if (l.startsWith("ja")) return "ja";
+  if (l.startsWith("ko")) return "ko";
+  return "en";
+}
+
 /**
  * Helper to get conjectures with localized content for the active language,
  * falling back to English if a language isn't fully translated.
  */
 export function getLocalizedConjectures(lang = "en") {
+  const norm = normalizeLang(lang);
   return RAW_CONJECTURES.map(item => {
-    const loc = (item.locales && item.locales[lang]) || (item.locales && item.locales.en) || {};
+    const loc = (item.locales && item.locales[norm]) || (item.locales && item.locales.en) || {};
     const enLoc = (item.locales && item.locales.en) || {};
 
     return {

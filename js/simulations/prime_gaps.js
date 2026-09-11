@@ -218,19 +218,19 @@ export class PrimeGapsSimulation {
     if (this.statsContainer) {
       this.statsContainer.innerHTML = `
         <div class="stat-card">
-          <span class="stat-label">${lang === 'ja' ? '発見された素数総数' : (lang.startsWith('zh') ? '检验范围内素数总数' : 'Total Primes Found')}</span>
+          <span class="stat-label">${i18n.t("stat_total_primes")}</span>
           <span class="stat-val highlight">${this.primes.length}</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">${lang === 'ja' ? '双子素数の組数' : (lang.startsWith('zh') ? '孪生素数对数量' : 'Twin Prime Pairs')}</span>
+          <span class="stat-label">${i18n.t("stat_twin_pairs")}</span>
           <span class="stat-val highlight">${this.twinPairs.length}</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">${lang === 'ja' ? '最も近い隣人ペア' : (lang.startsWith('zh') ? '最具代表性连续对' : 'Closest Neighbors')}</span>
+          <span class="stat-label">${i18n.t("stat_closest_neighbors")}</span>
           <span class="stat-val success">(3, 5), (5, 7), (11, 13)</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">${lang === 'ja' ? '人類最良の無条件上界' : (lang.startsWith('zh') ? '当前人类已知无条件间距界' : 'Best Unconditional Gap')}</span>
+          <span class="stat-label">${i18n.t("stat_best_unconditional")}</span>
           <span class="stat-val alert">≤ 246 (Maynard)</span>
         </div>
       `;

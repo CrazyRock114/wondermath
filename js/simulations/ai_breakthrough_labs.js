@@ -61,8 +61,8 @@ export class AIBreakthroughLab {
           <div class="sim-controls-bar">
             <div class="input-slider-group">
               <label>Proof Step:</label>
-              <button class="btn-primary" id="btn-proof-step">▶ Step Lean Tactic</button>
-              <button class="btn-outline" id="btn-proof-reset">↺ Reset Proof</button>
+              <button class="btn-primary" id="btn-proof-step">${i18n.t("btn_step_lean_tactic")}</button>
+              <button class="btn-outline" id="btn-proof-reset">${i18n.t("btn_reset_proof")}</button>
             </div>
             <div class="input-slider-group">
               <label>MCTS Expansion:</label>
@@ -81,7 +81,7 @@ export class AIBreakthroughLab {
               <label>Multiplication Step:</label>
               <input type="range" id="tensor-step" min="1" max="47" value="1" style="width:160px;">
               <strong id="tensor-step-val" class="highlight-val">1 / 47</strong>
-              <button class="btn-primary" id="btn-tensor-play">▶ Auto Step</button>
+              <button class="btn-primary" id="btn-tensor-play">${i18n.t("btn_auto_step")}</button>
             </div>
             <div class="input-slider-group">
               <label>Target Matrix:</label>
@@ -103,11 +103,11 @@ export class AIBreakthroughLab {
                 <option value="3" selected>Dimension d = 3 (Size = 9 / 27)</option>
                 <option value="4">Dimension d = 4 (Size = 20 / 81)</option>
               </select>
-              <button class="btn-primary" id="btn-funsearch-step">⚡ FunSearch Step</button>
-              <button class="btn-outline" id="btn-capset-clear">Clear Points</button>
+              <button class="btn-primary" id="btn-funsearch-step">${i18n.t("btn_step")}</button>
+              <button class="btn-outline" id="btn-capset-clear">${i18n.t("btn_clear_board")}</button>
             </div>
             <div class="input-slider-group">
-              <label>Presets:</label>
+              <label>${i18n.t("presets_label")}</label>
               <button class="preset-pill-btn active" data-preset="max-cap">Maximal Cap Set</button>
               <button class="preset-pill-btn" data-preset="affine-plane">Affine Subplane (Has AP)</button>
             </div>
@@ -127,7 +127,7 @@ export class AIBreakthroughLab {
                 <option value="twist">Three-Twist Knot (5₂)</option>
                 <option value="stevedore">Stevedore Knot (6₁)</option>
               </select>
-              <button class="btn-primary" id="btn-knot-predict">🧠 ML Saliency Scan</button>
+              <button class="btn-primary" id="btn-knot-predict">${i18n.t("btn_search_signature")}</button>
             </div>
             <div class="input-slider-group">
               <label>Knot Rotation:</label>
@@ -148,7 +148,7 @@ export class AIBreakthroughLab {
                 <option value="inscribed">IMO 2000 P1: Inscribed Circles</option>
                 <option value="simson">Simson Line Collinearity</option>
               </select>
-              <button class="btn-primary" id="btn-ag-solve">⚡ AI Aux Point Search</button>
+              <button class="btn-primary" id="btn-ag-solve">${i18n.t("btn_synthetic_step")}</button>
             </div>
             <div class="input-slider-group">
               <label>Engine Mode:</label>
@@ -184,7 +184,7 @@ export class AIBreakthroughLab {
               <label>Point Set Size N:</label>
               <input type="range" id="ud-points" min="12" max="64" value="24" style="width:140px;">
               <strong id="ud-points-val" class="highlight-val">24</strong>
-              <button class="btn-primary" id="btn-ud-optimize">⚡ AI Disproof Search</button>
+              <button class="btn-primary" id="btn-ud-optimize">${i18n.t("btn_test_moser")}</button>
             </div>
             <div class="input-slider-group">
               <label>Geometry:</label>
@@ -202,7 +202,7 @@ export class AIBreakthroughLab {
               <label>Deformation Factor t:</label>
               <input type="range" id="jac-t" min="0" max="1" step="0.02" value="0.5" style="width:140px;">
               <strong id="jac-t-val" class="highlight-val">0.50</strong>
-              <button class="btn-jac-fold" id="btn-jac-fold">⚡ Fold Map</button>
+              <button class="btn-jac-fold" id="btn-jac-fold">${i18n.t("btn_shear_grid")}</button>
             </div>
             <div class="input-slider-group">
               <label>Projection Slice:</label>
@@ -220,7 +220,7 @@ export class AIBreakthroughLab {
               <label>Approximation Dimension N:</label>
               <input type="range" id="astra-n" min="4" max="32" value="12" style="width:140px;">
               <strong id="astra-n-val" class="highlight-val">N = 12</strong>
-              <button class="btn-primary" id="btn-astra-verify">🛡️ Verify Lean Certificate</button>
+              <button class="btn-primary" id="btn-astra-verify">${i18n.t("btn_verify_kernel")}</button>
             </div>
             <div class="input-slider-group">
               <label>Group Presentation:</label>
@@ -238,7 +238,7 @@ export class AIBreakthroughLab {
               <label>Critical Line Shift t:</label>
               <input type="range" id="rm-t" min="10" max="80" value="30" style="width:140px;">
               <strong id="rm-t-val" class="highlight-val">t = 30.0</strong>
-              <button class="btn-primary" id="btn-rm-toggle-mollifier">⚡ Toggle Mollifier</button>
+              <button class="btn-primary" id="btn-rm-toggle-mollifier">${i18n.t("btn_optimize_mollifier")}</button>
             </div>
             <div class="input-slider-group">
               <label>Historical Bounds:</label>
@@ -261,7 +261,7 @@ export class AIBreakthroughLab {
                 <option value="7">p = 7 (Lamé 1839)</option>
                 <option value="prime">Arbitrary Prime p (Wiles 1995 / Lean 2026)</option>
               </select>
-              <button class="btn-primary" id="btn-flt-step-dag">▶ Step Lemma DAG</button>
+              <button class="btn-primary" id="btn-flt-step-dag">${i18n.t("btn_check_subgoals")}</button>
             </div>
             <div class="input-slider-group">
               <label>Formal Milestone:</label>
@@ -284,8 +284,8 @@ export class AIBreakthroughLab {
                 <option value="putnam">Putnam 2023: Problem A1</option>
                 <option value="algebra">Algebra: amc12a_2021_q12</option>
               </select>
-              <button class="btn-primary" id="btn-ds-mcts-step">⚡ Run MCTS Rollout</button>
-              <button class="btn-outline" id="btn-ds-reset">↺ Reset Tree</button>
+              <button class="btn-primary" id="btn-ds-mcts-step">${i18n.t("btn_step_grpo")}</button>
+              <button class="btn-outline" id="btn-ds-reset">${i18n.t("btn_reset_proof")}</button>
             </div>
             <div class="input-slider-group">
               <label>Search Policy:</label>

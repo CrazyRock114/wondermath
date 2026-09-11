@@ -34,32 +34,32 @@ export class LessonExporter {
 
 ---
 
-## 🎯 Learning Target & Core Riddle
+## 🎯 ${i18n.t("md_learning_target")}
 > ${gradeData.tagline || ''}
 
-### Intuitive Analogy
+### ${i18n.t("md_intuitive_analogy")}
 ${gradeData.analogy || ''}
 
 ---
 
-## 📋 Investigation Rules & Steps
+## 📋 ${i18n.t("md_rules_steps")}
 ${(gradeData.rules || []).map((r, i) => `${i + 1}. ${r}`).join('\n')}
 
 ---
 
-## 🔍 The Unsolved Mystery / Key Theorem
+## 🔍 ${i18n.t("md_mystery_theorem")}
 ${gradeData.mystery || ''}
 
-💡 **Fun Fact**: ${gradeData.funFact || ''}
+💡 **${i18n.t("fun_fact_label")}**: ${gradeData.funFact || ''}
 
 ---
 
-## 📜 Historical Progression
+## 📜 ${i18n.t("md_history_progression")}
 ${(conjecture.history || []).map(h => `- **${h.year}** (${h.author}): ${h.note}`).join('\n')}
 
 ---
 
-## 🤖 Lean 4 Formalization
+## 🤖 ${i18n.t("md_lean_formalization")}
 \`\`\`lean
 ${conjecture.leanCode || '-- Formal proof code'}
 \`\`\`

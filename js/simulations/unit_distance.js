@@ -244,11 +244,11 @@ export class UnitDistanceSimulation {
         <span class="stat-val success">${u}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Erdős Conjecture (1946)</span>
+        <span class="stat-label">${i18n.t("stat_erdos_conj_year")}</span>
         <span class="stat-val">n^(1+o(1))</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">AI Status (May 2026)</span>
+        <span class="stat-label">${i18n.t("stat_ai_status_may26")}</span>
         <span class="stat-val alert">${tDisproven}</span>
       </div>
     `;

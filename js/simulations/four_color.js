@@ -220,22 +220,33 @@ export class FourColorSimulation {
     document.getElementById("btn-fc-random")?.addEventListener("click", () => this.randomizeColors());
 
     if (this.statsContainer) {
+      const tImpossible = {
+        en: "Impossible!",
+        de: "Unmöglich!",
+        fr: "Impossible !",
+        it: "Impossibile!",
+        ja: "数学的に存在しない！",
+        ko: "수학적으로 불가능!",
+        "zh-Hans": "数学已证绝不可能！",
+        "zh-Hant": "數學已證絕不可能！"
+      }[lang] || "Impossible!";
+
       this.statsContainer.innerHTML = `
         <div class="stat-card">
-          <span class="stat-label">${lang === 'ja' ? '使用色数' : (lang.startsWith('zh') ? '使用颜色数' : 'Colors Used')}</span>
+          <span class="stat-label">${i18n.t("stat_colors_used")}</span>
           <span class="stat-val highlight">4</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">${lang === 'ja' ? '境界色の衝突数' : (lang.startsWith('zh') ? '冲突边界数' : 'Border Conflicts')}</span>
+          <span class="stat-label">${i18n.t("stat_border_conflicts")}</span>
           <span class="stat-val ${conflictCount === 0 ? 'success' : 'alert'}">${conflictCount}</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">${lang === 'ja' ? '計算機証明の年' : (lang.startsWith('zh') ? '计算机证明年份' : 'Year Proved')}</span>
+          <span class="stat-label">${i18n.t("stat_year_proved")}</span>
           <span class="stat-val">1976</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">${lang === 'ja' ? '5色必要になる地図は？' : (lang.startsWith('zh') ? '能否逼出第5种颜色？' : '5 Colors Needed?')}</span>
-          <span class="stat-val warning">${lang === 'ja' ? '数学的に存在しない！' : (lang.startsWith('zh') ? '数学已证绝不可能！' : 'Impossible!')}</span>
+          <span class="stat-label">${i18n.t("stat_five_colors_needed")}</span>
+          <span class="stat-val warning">${tImpossible}</span>
         </div>
       `;
     }

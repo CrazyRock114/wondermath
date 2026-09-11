@@ -221,7 +221,7 @@ export class RiemannZerosSimulation {
         <span class="stat-val success">67.2%</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">${lang === 'ja' ? 'クレイ研究所ミレニアム懸賞金' : (lang.startsWith('zh') ? '千禧年大奖难题悬赏' : 'Clay Millennium Prize')}</span>
+        <span class="stat-label">${i18n.t("stat_clay_millennium")}</span>
         <span class="stat-val alert">$1,000,000 USD</span>
       </div>
     `;

@@ -299,15 +299,15 @@ export class GoldbachSimulation {
         <span class="stat-val highlight">${this.targetEven}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">${lang === 'ja' ? '素数の組み合わせ' : (lang.startsWith('zh') ? '质数配对解数' : 'Prime Combinations')}</span>
+        <span class="stat-label">${i18n.t("stat_prime_combos")}</span>
         <span class="stat-val highlight">${tCombos}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">${lang === 'ja' ? '弱ゴールドバッハ予想' : (lang.startsWith('zh') ? '弱哥德巴赫猜想' : 'Weak Goldbach')}</span>
+        <span class="stat-label">${i18n.t("stat_weak_goldbach")}</span>
         <span class="stat-val success">${tWeak}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">${lang === 'ja' ? 'スパコン検証限界' : (lang.startsWith('zh') ? '超级计算机验证极值' : 'Verified by Computers')}</span>
+        <span class="stat-label">${i18n.t("stat_verified_computers")}</span>
         <span class="stat-val alert">4 × 10¹⁸</span>
       </div>
     `;

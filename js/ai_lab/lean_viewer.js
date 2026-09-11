@@ -305,7 +305,10 @@ export class LeanViewer {
   render() {
     if (!this.container) return;
 
-    const lang = i18n.getLanguage();
+    let lang = i18n.getLanguage() || "en";
+    if (lang === "zh" || lang === "zh-CN") lang = "zh-Hans";
+    if (lang === "zh-TW" || lang === "zh-HK") lang = "zh-Hant";
+
     const data = this.snippets[this.activeSnippetKey] || this.snippets.flt;
     const loc = data.locales[lang] || data.locales.en;
     const glossaryDict = this.glossaries[lang] || this.glossaries.en;
@@ -413,7 +416,7 @@ export class LeanViewer {
         const termTitle = document.getElementById("dict-term-title");
         const termDesc = document.getElementById("dict-term-desc");
         if (termTitle && termDesc && glossaryDict[term]) {
-          termTitle.innerText = `Keyword: ${term}`;
+          termTitle.innerText = `${i18n.t("keyword_label", "Keyword:")} ${term}`;
           termDesc.innerText = glossaryDict[term];
         }
       });

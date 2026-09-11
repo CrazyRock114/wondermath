@@ -3273,12 +3273,26 @@ export const RAW_AI_BREAKTHROUGHS = [
 
 export const AI_BREAKTHROUGHS_CATALOG = RAW_AI_BREAKTHROUGHS;
 
+function normalizeLang(lang) {
+  if (!lang) return "en";
+  const l = String(lang).toLowerCase();
+  if (l === "zh-hant" || l.includes("tw") || l.includes("hk") || l.includes("traditional")) return "zh-Hant";
+  if (l.startsWith("zh")) return "zh-Hans";
+  if (l.startsWith("de")) return "de";
+  if (l.startsWith("fr")) return "fr";
+  if (l.startsWith("it")) return "it";
+  if (l.startsWith("ja")) return "ja";
+  if (l.startsWith("ko")) return "ko";
+  return "en";
+}
+
 /**
  * Returns localized breakthroughs with fallback to English
  */
 export function getLocalizedAIBreakthroughs(lang = "en") {
+  const norm = normalizeLang(lang);
   return RAW_AI_BREAKTHROUGHS.map(item => {
-    const loc = item.locales[lang] || item.locales.en || {};
+    const loc = item.locales[norm] || item.locales.en || {};
     const enLoc = item.locales.en || {};
 
     return {
@@ -3310,7 +3324,8 @@ export function getBreakthroughById(id, lang = "en") {
   const item = RAW_AI_BREAKTHROUGHS.find(b => b.id === id);
   if (!item) return null;
 
-  const loc = item.locales[lang] || item.locales.en || {};
+  const norm = normalizeLang(lang);
+  const loc = item.locales[norm] || item.locales.en || {};
   const enLoc = item.locales.en || {};
 
   return {

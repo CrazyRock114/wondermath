@@ -27,20 +27,38 @@ export class CounterexampleHunter {
   render() {
     if (!this.container) return;
 
-    const lang = i18n.getLanguage();
+    let lang = i18n.getLanguage() || "en";
+    if (lang === "zh" || lang === "zh-CN") lang = "zh-Hans";
+    if (lang === "zh-TW" || lang === "zh-HK") lang = "zh-Hant";
+
+    const tGoldbachOdd = {
+      en: "Odd Numbers as Sum of 2 Primes (Counterexample Search)",
+      de: "Ungerade Zahlen als Summe zweier Primzahlen (Gegenbeispielsuche)",
+      fr: "Nombres impairs comme somme de 2 premiers (Recherche de contre-exemple)",
+      it: "Numeri dispari come somma di 2 primi (Ricerca controesempi)",
+      ja: "奇数を2つの素数の和として表す（反例探索）",
+      ko: "홀수를 두 소수의 합으로 나타내기 (반례 탐색)",
+      "zh-Hans": "奇数拆分为两素数之和（反例搜寻）",
+      "zh-Hant": "奇數拆分為兩質數之和（反例搜尋）"
+    }[lang] || "Odd Numbers as Sum of 2 Primes (Counterexample Search)";
+
+    const tRange = (n) => ({
+      en: `Numbers 1 to ${n.toLocaleString()}`,
+      de: `Zahlen 1 bis ${n.toLocaleString()}`,
+      fr: `Nombres de 1 à ${n.toLocaleString()}`,
+      it: `Numeri da 1 a ${n.toLocaleString()}`,
+      ja: `1 から ${n.toLocaleString()} までの数`,
+      ko: `1부터 ${n.toLocaleString()}까지의 수`,
+      "zh-Hans": `数字 1 到 ${n.toLocaleString()}`,
+      "zh-Hant": `數字 1 到 ${n.toLocaleString()}`
+    }[lang] || `Numbers 1 to ${n.toLocaleString()}`);
 
     const ruleOptions = [
       { val: "collatz_std", label: `${i18n.t("collatz_std")} (3n + 1)` },
       { val: "collatz_5n", label: `${i18n.t("collatz_5n")} [5n + 1]` },
       { val: "collatz_3n_minus_1", label: `${i18n.t("collatz_3n_minus_1")} [3n - 1]` },
-      { val: "goldbach_odd", label: lang === 'ja' ? '奇数を2つの素数の和として表す（反例探索）' : (lang.startsWith('zh') ? '奇数拆分为两素数之和（反例搜寻）' : 'Odd Numbers as Sum of 2 Primes (Counterexample Search)') }
+      { val: "goldbach_odd", label: tGoldbachOdd }
     ];
-
-    const rangeLabels = {
-      100: lang === 'ja' ? '1 から 100 までの数' : (lang.startsWith('zh') ? '数字 1 到 100' : 'Numbers 1 to 100'),
-      500: lang === 'ja' ? '1 から 500 までの数' : (lang.startsWith('zh') ? '数字 1 到 500' : 'Numbers 1 to 500'),
-      2000: lang === 'ja' ? '1 から 2,000 までの数' : (lang.startsWith('zh') ? '数字 1 到 2,000' : 'Numbers 1 to 2,000')
-    };
 
     this.container.innerHTML = `
       <div class="hunter-card">
@@ -63,9 +81,9 @@ export class CounterexampleHunter {
           <div class="control-item">
             <label>${i18n.t("hunter_range_label")}</label>
             <select id="hunter-limit" class="custom-select">
-              <option value="100">${rangeLabels[100]}</option>
-              <option value="500" selected>${rangeLabels[500]}</option>
-              <option value="2000">${rangeLabels[2000]}</option>
+              <option value="100">${tRange(100)}</option>
+              <option value="500" selected>${tRange(500)}</option>
+              <option value="2000">${tRange(2000)}</option>
             </select>
           </div>
 
@@ -107,8 +125,23 @@ export class CounterexampleHunter {
     if (startBtn) startBtn.disabled = true;
     if (stopBtn) stopBtn.disabled = false;
 
+    let lang = i18n.getLanguage() || "en";
+    if (lang === "zh" || lang === "zh-CN") lang = "zh-Hans";
+    if (lang === "zh-TW" || lang === "zh-HK") lang = "zh-Hant";
+
+    const tInitLog = {
+      en: `▶ Search initiated for ${rule} up to ${limit}...`,
+      de: `▶ Suche für ${rule} bis ${limit} gestartet...`,
+      fr: `▶ Recherche initiée pour ${rule} jusqu'à ${limit}...`,
+      it: `▶ Ricerca avviata per ${rule} fino a ${limit}...`,
+      ja: `▶ ${rule} の検証開始 (最大 ${limit} まで)...`,
+      ko: `▶ ${rule} 검증 시작 (최대 ${limit}까지)...`,
+      "zh-Hans": `▶ 开始针对规则 ${rule} 在范围 1..${limit} 内搜寻...`,
+      "zh-Hant": `▶ 開始針對規則 ${rule} 在範圍 1..${limit} 內搜尋...`
+    }[lang] || `▶ Search initiated for ${rule} up to ${limit}...`;
+
     const logFeed = document.getElementById("hunter-log-feed");
-    if (logFeed) logFeed.innerHTML = `<div class="log-line info">▶ Search initiated for ${rule} up to ${limit}...</div>`;
+    if (logFeed) logFeed.innerHTML = `<div class="log-line info">${tInitLog}</div>`;
 
     let current = 2;
     let anomalies = 0;
@@ -116,7 +149,18 @@ export class CounterexampleHunter {
     const step = () => {
       if (!this.running || current > limit) {
         this.stopSearch();
-        if (logFeed) logFeed.innerHTML += `<div class="log-line success">✔ Search completed. Tested ${current - 2} candidates. Anomalies: ${anomalies}</div>`;
+        const tDoneLog = {
+          en: `✔ Search completed. Tested ${current - 2} candidates. Anomalies: ${anomalies}`,
+          de: `✔ Suche beendet. ${current - 2} Kandidaten geprüft. Anomalien: ${anomalies}`,
+          fr: `✔ Recherche terminée. ${current - 2} candidats testés. Anomalies : ${anomalies}`,
+          it: `✔ Ricerca completata. ${current - 2} candidati testati. Anomalie: ${anomalies}`,
+          ja: `✔ 検証完了。${current - 2} 個の候補をテスト。検出された特異点: ${anomalies}`,
+          ko: `✔ 검증 완료. ${current - 2}개 후보 테스트 완료. 발견된 이상치: ${anomalies}`,
+          "zh-Hans": `✔ 搜寻完毕。共验证 ${current - 2} 个候选数，发现特异值/反例数: ${anomalies}`,
+          "zh-Hant": `✔ 搜尋完畢。共驗證 ${current - 2} 個候選數，發現特異值/反例數: ${anomalies}`
+        }[lang] || `✔ Search completed. Tested ${current - 2} candidates. Anomalies: ${anomalies}`;
+
+        if (logFeed) logFeed.innerHTML += `<div class="log-line success">${tDoneLog}</div>`;
         return;
       }
 
@@ -159,6 +203,10 @@ export class CounterexampleHunter {
   }
 
   evaluateNumber(n, rule) {
+    let lang = i18n.getLanguage() || "en";
+    if (lang === "zh" || lang === "zh-CN") lang = "zh-Hans";
+    if (lang === "zh-TW" || lang === "zh-HK") lang = "zh-Hant";
+
     if (rule === "collatz_std") {
       return { isAnomaly: false };
     } else if (rule === "collatz_5n") {
@@ -167,10 +215,30 @@ export class CounterexampleHunter {
       for (let s = 0; s < 80; s++) {
         cur = cur % 2 === 0 ? cur / 2 : 5 * cur + 1;
         if (visited.has(cur) && cur !== 1) {
-          return { isAnomaly: true, note: `Cycle detected at ${cur}!` };
+          const noteCycle = {
+            en: `Cycle detected at ${cur}!`,
+            de: `Zyklus bei ${cur} entdeckt!`,
+            fr: `Cycle détecté en ${cur} !`,
+            it: `Ciclo rilevato a ${cur}!`,
+            ja: `ループトラップを検出: ${cur}!`,
+            ko: `${cur}에서 순환 루프 발견!`,
+            "zh-Hans": `在数字 ${cur} 处陷入非平凡循环！`,
+            "zh-Hant": `在數字 ${cur} 處陷入非平凡循環！`
+          }[lang] || `Cycle detected at ${cur}!`;
+          return { isAnomaly: true, note: noteCycle };
         }
         if (cur > 1e6) {
-          return { isAnomaly: true, note: `Escaped to orbit > 1,000,000 in ${s} steps!` };
+          const noteDiverge = {
+            en: `Escaped to orbit > 1,000,000 in ${s} steps!`,
+            de: `In Orbit > 1.000.000 in ${s} Schritten entwichen!`,
+            fr: `Échappé vers une orbite > 1 000 000 en ${s} étapes !`,
+            it: `Fuggito a orbita > 1.000.000 in ${s} passaggi!`,
+            ja: `${s} ステップで値が 1,000,000 を超過発散！`,
+            ko: `${s}단계 만에 1,000,000을 초과하여 발산!`,
+            "zh-Hans": `历经 ${s} 步爆发性脱离，轨道突破 1,000,000 发散！`,
+            "zh-Hant": `歷經 ${s} 步爆發性脫離，軌道突破 1,000,000 發散！`
+          }[lang] || `Escaped to orbit > 1,000,000 in ${s} steps!`;
+          return { isAnomaly: true, note: noteDiverge };
         }
         visited.add(cur);
       }
@@ -181,7 +249,17 @@ export class CounterexampleHunter {
       for (let s = 0; s < 80; s++) {
         cur = cur % 2 === 0 ? cur / 2 : 3 * cur - 1;
         if (visited.has(cur) && cur !== 1) {
-          return { isAnomaly: true, note: `Alternate cycle trapped at ${cur}` };
+          const noteAltCycle = {
+            en: `Alternate cycle trapped at ${cur}`,
+            de: `In Alternativzyklus bei ${cur} gefangen`,
+            fr: `Cycle alternatif piégé en ${cur}`,
+            it: `Ciclo alternativo intrappolato a ${cur}`,
+            ja: `代替ループにトラップ: ${cur}`,
+            ko: `대체 루프에 갇힘: ${cur}`,
+            "zh-Hans": `陷入独立副循环，停留在 ${cur}`,
+            "zh-Hant": `陷入獨立副循環，停留在 ${cur}`
+          }[lang] || `Alternate cycle trapped at ${cur}`;
+          return { isAnomaly: true, note: noteAltCycle };
         }
         visited.add(cur);
       }
@@ -193,7 +271,17 @@ export class CounterexampleHunter {
         return true;
       };
       if (n % 2 !== 0 && !isPrime(n - 2)) {
-        return { isAnomaly: true, note: `${n} cannot be written as 2 primes (${n}-2=${n-2} is composite)!` };
+        const noteGoldbach = {
+          en: `${n} cannot be written as 2 primes (${n}-2=${n-2} is composite)!`,
+          de: `${n} kann nicht als 2 Primzahlen dargestellt werden (${n}-2=${n-2} ist zusammengesetzt)!`,
+          fr: `${n} ne peut pas s'écrire comme 2 premiers (${n}-2=${n-2} est composé) !`,
+          it: `${n} non può essere scritto come 2 primi (${n}-2=${n-2} è composto)!`,
+          ja: `${n} は2つの素数の和として表せない (${n}-2=${n-2} は合成数)!`,
+          ko: `${n}은(는) 두 소수의 합으로 쓸 수 없음 (${n}-2=${n-2}은 합성수)!`,
+          "zh-Hans": `${n} 无法拆为两素数之和 (${n}-2=${n-2} 为合数)!`,
+          "zh-Hant": `${n} 無法拆為兩質數之和 (${n}-2=${n-2} 為合數)!`
+        }[lang] || `${n} cannot be written as 2 primes (${n}-2=${n-2} is composite)!`;
+        return { isAnomaly: true, note: noteGoldbach };
       }
       return { isAnomaly: false };
     }

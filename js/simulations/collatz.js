@@ -231,7 +231,7 @@ export class CollatzSimulation {
           ctx.fillStyle = "#f43f5e";
           ctx.font = "bold 11px sans-serif";
           ctx.textAlign = "center";
-          ctx.fillText(`Peak: ${peak.toLocaleString()}`, x, y - 10);
+          ctx.fillText(`${i18n.t("stat_peak_prefix")}${peak.toLocaleString()}`, x, y - 10);
         }
       }
     }
@@ -240,7 +240,7 @@ export class CollatzSimulation {
     ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
     ctx.font = "11px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Steps (Time)", w / 2, h - 12);
+    ctx.fillText(i18n.t("stat_steps_axis"), w / 2, h - 12);
   }
 
   getStepEquation(idx) {
@@ -270,7 +270,7 @@ export class CollatzSimulation {
         <span class="stat-val highlight">${start.toLocaleString()}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Current Step / Total</span>
+        <span class="stat-label">${i18n.t("stat_current_step")}</span>
         <span class="stat-val highlight">${currentStep - 1} <small style="font-size:0.75rem; color:var(--text-muted);">/ ${totalSteps}</small></span>
         <span style="font-size:0.72rem; color:var(--accent-cyan); margin-top:2px;">Val: ${currentVal.toLocaleString()}</span>
       </div>
@@ -279,10 +279,10 @@ export class CollatzSimulation {
         <span class="stat-val ${peak > start * 10 ? 'alert' : ''}">${peak.toLocaleString()}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Step Equation</span>
+        <span class="stat-label">${i18n.t("stat_step_equation")}</span>
         <span class="stat-val" style="font-size:0.85rem; color:#cbd5e1; font-family:monospace;">${stepEq}</span>
         <span style="font-size:0.72rem; color:${reachesOne ? 'var(--accent-emerald)' : 'var(--accent-amber)'}; margin-top:2px;">
-          ${reachesOne ? i18n.t("stat_landed_1") : (this.cycleDetected ? i18n.t("stat_trapped_cycle") : "Ascending...")}
+          ${reachesOne ? i18n.t("stat_landed_1") : (this.cycleDetected ? i18n.t("stat_trapped_cycle") : i18n.t("stat_ascending"))}
         </span>
       </div>
     `;

@@ -168,22 +168,33 @@ export class JacobianGridSimulation {
       "zh-Hant": "2維三角多項式下成立"
     }[lang] || "Holds in 2D Triangular";
 
+    const tStillOpen = {
+      en: "Still OPEN!",
+      de: "Weiterhin OFFEN!",
+      fr: "Toujours OUVERT !",
+      it: "Tuttora APERTO!",
+      ja: "現在も未解決！",
+      ko: "현재도 미해결!",
+      "zh-Hans": "至今仍未解决！",
+      "zh-Hant": "至今仍未解決！"
+    }[lang] || "Still OPEN!";
+
     this.statsContainer.innerHTML = `
       <div class="stat-card">
-        <span class="stat-label">${lang === 'ja' ? 'ヤコビアン行列式' : (lang.startsWith('zh') ? '雅可比行列式' : 'Jacobian Determinant')}</span>
+        <span class="stat-label">${i18n.t("stat_jacobian_det")}</span>
         <span class="stat-val highlight">${isClaude ? 'det(JF) = -2' : 'det(JF) = 1.0'}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">${lang === 'ja' ? '局所可逆性' : (lang.startsWith('zh') ? '局部可逆性' : 'Local Invertibility')}</span>
+        <span class="stat-label">${i18n.t("stat_local_invert")}</span>
         <span class="stat-val success">${tLocalInv}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">${lang === 'ja' ? '大域的可逆性' : (lang.startsWith('zh') ? '全局可逆性' : 'Global Invertibility')}</span>
+        <span class="stat-label">${i18n.t("stat_global_invert")}</span>
         <span class="stat-val ${isClaude ? 'alert' : 'success'}">${tGlobalInv}</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">${lang === 'ja' ? '2次元平面予想の状態' : (lang.startsWith('zh') ? '2维平面猜想现状' : '2D Planar Case')}</span>
-        <span class="stat-val warning">${lang === 'ja' ? '現在も未解決！' : (lang.startsWith('zh') ? '至今仍未解决！' : 'Still OPEN!')}</span>
+        <span class="stat-label">${i18n.t("stat_2d_planar")}</span>
+        <span class="stat-val warning">${tStillOpen}</span>
       </div>
     `;
   }

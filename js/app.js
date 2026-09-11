@@ -1020,12 +1020,12 @@ export class WonderMathApp {
               <span style="font-size: 1.6rem;">${m.icon || "⚡"}</span>
               <h3 style="margin: 0; font-size: 1.15rem;">${m.title}</h3>
             </div>
-            <div class="card-subtitle" style="margin-top: 0.4rem;"><strong>System:</strong> ${m.model} (${m.system})</div>
+            <div class="card-subtitle" style="margin-top: 0.4rem;"><strong>${i18n.t("system_label", "System:")}</strong> ${m.model} (${m.system})</div>
             <p class="card-tagline" style="margin-bottom: 0.75rem;">${m.description}</p>
             <div class="card-footer-meta">
               <span>${m.impact}</span>
               <span style="color: var(--accent-cyan); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
-                Explore Lab →
+                ${i18n.t("btn_explore_lab", "Explore Lab →")}
               </span>
             </div>
           </div>
@@ -1069,7 +1069,7 @@ export class WonderMathApp {
     container.innerHTML = `
       <div style="margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between;">
         <button class="btn-outline" id="btn-back-to-timeline" style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-          ← Back to 2021–2026 Milestones
+          ${i18n.t("btn_back_to_timeline", "← Back to 2021–2026 Milestones")}
         </button>
         <span class="status-badge badge-ai">${milestone.badge}</span>
       </div>
@@ -1105,10 +1105,10 @@ export class WonderMathApp {
               ${milestone.description}
             </p>
             <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
-              <span class="status-badge badge-proven">Impact: ${milestone.impact}</span>
+              <span class="status-badge badge-proven">${i18n.t("impact_label", "Impact:")} ${milestone.impact}</span>
               ${milestone.paperUrl ? `
                 <a href="${milestone.paperUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.85rem; font-size: 0.85rem;">
-                  📄 ${milestone.paperTitle || "Original Publication"} ↗
+                  📄 ${milestone.paperTitle || i18n.t("original_publication", "Original Publication")} ↗
                 </a>
               ` : ''}
             </div>
@@ -1120,10 +1120,10 @@ export class WonderMathApp {
       <section class="zone-card animate-fade-in" id="zone-principles" style="margin-bottom: 2rem;">
         <div class="zone-header-row">
           <div class="zone-title-wrap">
-            <span class="zone-badge z1">Zone ① Differentiated Learning</span>
+            <span class="zone-badge z1">${i18n.t("ai_zone_1_pill", "Zone ① Differentiated Learning")}</span>
             <div class="zone-title-text">
-              <h3>Multi-Tier Intuition & Mechanics</h3>
-              <p>Step-by-step cognitive escalation from elementary intuition to mathematical rigor.</p>
+              <h3>${i18n.t("ai_zone_1_title", "Multi-Tier Intuition & Mechanics")}</h3>
+              <p>${i18n.t("ai_zone_1_sub", "Step-by-step cognitive escalation from elementary intuition to mathematical rigor.")}</p>
             </div>
           </div>
         </div>
@@ -1138,11 +1138,11 @@ export class WonderMathApp {
             </h4>
           </div>
           <div class="detail-analogy-box" style="margin-bottom: 0.85rem;">
-            <strong>💡 Intuitive Analogy:</strong>
+            <strong>${i18n.t("intuitive_analogy_label", "💡 Intuitive Analogy:")}</strong>
             <p style="margin: 0.35rem 0 0 0; line-height: 1.6;">${exp.analogy || ""}</p>
           </div>
           <div class="detail-analogy-box" style="margin-bottom: 1rem; border-left-color: var(--accent-cyan);">
-            <strong style="color: #38bdf8;">⚙️ How It Works (Elementary):</strong>
+            <strong style="color: #38bdf8;">${i18n.t("how_it_works_elem", "⚙️ How It Works (Elementary):")}</strong>
             <p style="margin: 0.35rem 0 0 0; line-height: 1.5; white-space: pre-line;">${exp.howItWorks || ""}</p>
           </div>
         </div>
@@ -1157,11 +1157,11 @@ export class WonderMathApp {
             </h4>
           </div>
           <div class="detail-analogy-box" style="margin-bottom: 0.85rem; border-left-color: var(--accent-purple);">
-            <strong style="color: #c084fc;">⚙️ Algorithmic Mechanics:</strong>
+            <strong style="color: #c084fc;">${i18n.t("algorithmic_mechanics", "⚙️ Algorithmic Mechanics:")}</strong>
             <p style="margin: 0.35rem 0 0 0; line-height: 1.6;">${inv.analogy || ""}</p>
           </div>
           <div class="detail-analogy-box" style="margin-bottom: 1rem; border-left-color: var(--accent-purple);">
-            <strong style="color: #c084fc;">🔍 Systematic Breakdown:</strong>
+            <strong style="color: #c084fc;">${i18n.t("systematic_breakdown", "🔍 Systematic Breakdown:")}</strong>
             <p style="margin: 0.35rem 0 0 0; line-height: 1.5; white-space: pre-line;">${inv.howItWorks || ""}</p>
           </div>
         </div>
@@ -1176,11 +1176,11 @@ export class WonderMathApp {
             </h4>
           </div>
           <div class="detail-analogy-box" style="margin-bottom: 0.85rem; border-left-color: var(--accent-rose);">
-            <strong style="color: #fb7185;">🏛️ Frontier Architecture:</strong>
+            <strong style="color: #fb7185;">${i18n.t("frontier_architecture", "🏛️ Frontier Architecture:")}</strong>
             <p style="margin: 0.35rem 0 0 0; line-height: 1.6;">${pio.analogy || ""}</p>
           </div>
           <div class="detail-analogy-box" style="margin-bottom: 1rem; border-left-color: var(--accent-rose);">
-            <strong style="color: #fb7185;">📐 Formal Kernel & Loss Mechanics:</strong>
+            <strong style="color: #fb7185;">${i18n.t("formal_kernel_loss", "📐 Formal Kernel & Loss Mechanics:")}</strong>
             <p style="margin: 0.35rem 0 0 0; line-height: 1.5; white-space: pre-line;">${pio.howItWorks || ""}</p>
           </div>
         </div>
@@ -1189,7 +1189,7 @@ export class WonderMathApp {
         <div style="margin-top: 1.5rem;">
           <h4 style="margin-bottom: 0.75rem; color: var(--accent-emerald); font-size: 1.05rem; display: flex; align-items: center; gap: 0.5rem;">
             <span>🔍</span>
-            <span>Unsolved Mystery Cracked Across Tiers</span>
+            <span>${i18n.t("mystery_cracked_title", "Unsolved Mystery Cracked Across Tiers")}</span>
           </h4>
           <div class="mystery-tier-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
             <div class="detail-analogy-box" style="border-left-color: var(--accent-cyan); background: rgba(56, 189, 248, 0.04);">
@@ -1217,7 +1217,7 @@ export class WonderMathApp {
         </div>
 
         <div class="card-footer-meta" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-top: 1rem;">
-          <span style="color: #fbbf24; font-weight: 600;">✨ Fun Fact:</span>
+          <span style="color: #fbbf24; font-weight: 600;">✨ ${i18n.t("fun_fact_label")}</span>
           <span style="color: var(--text-primary); margin-left: 0.5rem;">${inv.funFact || exp.funFact || pio.funFact || ""}</span>
         </div>
       </section>
@@ -1226,33 +1226,33 @@ export class WonderMathApp {
       <section class="zone-card animate-fade-in" style="margin-bottom: 2rem;">
         <div class="zone-header-row">
           <div class="zone-title-wrap">
-            <span class="zone-badge z2">Zone ② Collaboration Division</span>
+            <span class="zone-badge z2">${i18n.t("ai_zone_2_pill", "Zone ② Collaboration Division")}</span>
             <div class="zone-title-text">
-              <h3>Human Mathematician & Artificial Intelligence Synergy</h3>
-              <p>How intuitive insight and machine-scale formal search united to conquer open problems.</p>
+              <h3>${i18n.t("ai_zone_2_title", "Human Mathematician & Artificial Intelligence Synergy")}</h3>
+              <p>${i18n.t("ai_zone_2_sub", "How intuitive insight and machine-scale formal search united to conquer open problems.")}</p>
             </div>
           </div>
         </div>
 
         <div class="collaboration-grid">
           <div class="collab-card human">
-            <h4>🧑 Human Mathematician</h4>
+            <h4>${i18n.t("human_mathematician", "🧑 Human Mathematician")}</h4>
             <ul style="padding-left: 1.25rem; margin: 0; line-height: 1.6; color: var(--text-secondary);">
-              <li>Formulating conceptual frameworks & conjectures</li>
-              <li>Spatial geometric reasoning & heuristic diagram sketching</li>
-              <li>Translating informal intuition into structured lemma architectures</li>
+              <li>${i18n.t("human_role_1", "Formulating conceptual frameworks & conjectures")}</li>
+              <li>${i18n.t("human_role_2", "Spatial geometric reasoning & heuristic diagram sketching")}</li>
+              <li>${i18n.t("human_role_3", "Translating informal intuition into structured lemma architectures")}</li>
             </ul>
           </div>
           <div class="collab-card ai">
-            <h4>🤖 AI & Automated Reasoning</h4>
+            <h4>${i18n.t("ai_automated_reasoning", "🤖 AI & Automated Reasoning")}</h4>
             <ul style="padding-left: 1.25rem; margin: 0; line-height: 1.6; color: var(--text-secondary);">
-              <li>Exploring tens of millions of proof trees via MCTS & RL</li>
-              <li>High-dimensional tensor rank and algebraic decomposition</li>
-              <li>100% formal kernel type checking with zero hallucination</li>
+              <li>${i18n.t("ai_role_1", "Exploring tens of millions of proof trees via MCTS & RL")}</li>
+              <li>${i18n.t("ai_role_2", "High-dimensional tensor rank and algebraic decomposition")}</li>
+              <li>${i18n.t("ai_role_3", "100% formal kernel type checking with zero hallucination")}</li>
             </ul>
           </div>
           <div class="collab-card synergy">
-            <h4>🤝 The Breakthrough Division</h4>
+            <h4>${i18n.t("breakthrough_division", "🤝 The Breakthrough Division")}</h4>
             <p style="margin: 0; line-height: 1.6; color: var(--text-primary);">
               ${inv.humanVsAi || exp.humanVsAi || pio.humanVsAi || ""}
             </p>
@@ -1264,10 +1264,10 @@ export class WonderMathApp {
       <section class="zone-card animate-fade-in" style="margin-bottom: 2rem;">
         <div class="zone-header-row">
           <div class="zone-title-wrap">
-            <span class="zone-badge z3">Zone ③ Hands-On Lab</span>
+            <span class="zone-badge z3">${i18n.t("ai_zone_3_pill", "Zone ③ Hands-On Lab")}</span>
             <div class="zone-title-text">
-              <h3>Interactive Verification Sandbox: ${milestone.model}</h3>
-              <p>Experiment with parameters, step through proof trajectories, and watch AI optimization live.</p>
+              <h3>${i18n.t("ai_lab_title", "Interactive Verification Sandbox:")} ${milestone.model}</h3>
+              <p>${i18n.t("ai_lab_sub", "Experiment with parameters, step through proof trajectories, and watch AI optimization live.")}</p>
             </div>
           </div>
         </div>
@@ -1311,21 +1311,21 @@ export class WonderMathApp {
       <section class="zone-card animate-fade-in" style="margin-bottom: 2rem;">
         <div class="zone-header-row">
           <div class="zone-title-wrap">
-            <span class="zone-badge z4">Zone ④ Formal Artifact</span>
+            <span class="zone-badge z4">${i18n.t("ai_zone_4_pill", "Zone ④ Formal Artifact")}</span>
             <div class="zone-title-text">
-              <h3>Lean 4 / Machine-Checked Formal Specification</h3>
-              <p>Certified mathematical logic verified by formal proof kernel.</p>
+              <h3>${i18n.t("ai_zone_4_title", "Lean 4 / Machine-Checked Formal Specification")}</h3>
+              <p>${i18n.t("ai_zone_4_sub", "Certified mathematical logic verified by formal proof kernel.")}</p>
             </div>
           </div>
           <button class="btn-outline" id="btn-copy-lean-snippet" style="font-size: 0.85rem; padding: 0.35rem 0.75rem; cursor: pointer;">
-            📋 Copy Formal Snippet
+            ${i18n.t("btn_copy_snippet", "📋 Copy Formal Snippet")}
           </button>
         </div>
 
         <pre class="breakthrough-code-block"><code>${milestone.leanSnippet || "-- Formal code artifact"}</code></pre>
         <div style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;">
-          <span style="color: var(--accent-emerald);">🛡️ Formal Verification Guarantee:</span>
-          Verified by Lean 4 interactive theorem prover. Dependent Type Theory eliminates human grading oversights.
+          <span style="color: var(--accent-emerald);">${i18n.t("formal_guarantee_label", "🛡️ Formal Verification Guarantee:")}</span>
+          ${i18n.t("formal_guarantee_desc", "Verified by Lean 4 interactive theorem prover. Dependent Type Theory eliminates human grading oversights.")}
         </div>
       </section>
     `;
@@ -1358,8 +1358,8 @@ export class WonderMathApp {
         navigator.clipboard.writeText(milestone.leanSnippet).then(() => {
           const btn = document.getElementById("btn-copy-lean-snippet");
           if (btn) {
-            btn.textContent = "✓ Copied to Clipboard!";
-            setTimeout(() => { btn.textContent = "📋 Copy Formal Snippet"; }, 2000);
+            btn.textContent = i18n.t("copied_to_clipboard", "✓ Copied to Clipboard!");
+            setTimeout(() => { btn.textContent = i18n.t("btn_copy_snippet", "📋 Copy Formal Snippet"); }, 2000);
           }
         });
       }
